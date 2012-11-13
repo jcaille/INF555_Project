@@ -1,3 +1,5 @@
+.classpath
+bin/java.policy.applet
 *.class
 
 # Package Files #
