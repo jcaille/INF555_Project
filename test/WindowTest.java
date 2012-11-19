@@ -50,10 +50,11 @@ public class WindowTest {
 		
 		//test with two lines that do cross, but outside the segment
 		Point_2 e = new Point_2(0,2) ;
-		assertNull(myWindow.intersectLines(a, b, c, e)) ;
+		assertNotNull(myWindow.intersectLines(a, b, c, e)) ;
 		
 		//test with lines that intersect at one end of the segment
 		assertEquals(a, myWindow.intersectLines(a, b, a, c)) ;
+		
 		
 		//final test
 		Point_2 f = new Point_2(2,2) ;
@@ -66,6 +67,8 @@ public class WindowTest {
 
 		//test if two lines are parallel but intersecting at only one point
 		assertNull(myWindow.intersectLines(a, b, b, f));
+		
+		assertEquals(myWindow.intersectLines(a, f, e, b), b) ;
 	}
 }
 
