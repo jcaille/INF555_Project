@@ -54,14 +54,14 @@ public class Window {
 		return getThirdTriangleVertex(b0, b1, d0, d1, tau);
 	}
 	
-	public Point_2 barycenter(Point_2 A, Point_2 B, double t){
+	public static Point_2 barycenter(Point_2 A, Point_2 B, double t){
 		//returns (1-t)*A + t*B
 		double x = (1-t) * A.x + t * B.x ;
 		double y = (1-t) * A.y + t * B.y ;
 		return new Point_2(x,y) ;
 	}
 
-	public Point_3 barycenter(Point_3 A, Point_3 B, double t){
+	public static Point_3 barycenter(Point_3 A, Point_3 B, double t){
 		//returns (1-t)*A + t*B
 		double x = (1-t) * A.x + t * B.x ;
 		double y = (1-t) * A.y + t * B.y ;
@@ -185,12 +185,16 @@ public class Window {
 
 	protected static double edgeLength(Halfedge<Point_3> h) {
 		return (Double) h.getVertex().getPoint()
-				.distanceFrom(h.getVertex().getPoint());
+				.distanceFrom(h.getOpposite().getVertex().getPoint());
 	}
 
+	protected static boolean sumMatch(Point_2 A, Point_2 B, Point_2 M, double precision){
+		return Math.abs((Double) A.distanceFrom(B) - (Double) A.distanceFrom(M) - (Double) M.distanceFrom(B)) < precision ;
+	}
 	public Segment_3 getSegment(){
 		Point_3 firstPoint = barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b0/edgeLength(this.edge)) ;
 		Point_3 secondPoint = barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b1/edgeLength(this.edge)) ;
+		
 		return new Segment_3(firstPoint, secondPoint) ;
 	}
 	public LinkedList<Window> propagate() throws Exception {
@@ -202,10 +206,10 @@ public class Window {
 		Point_2 P1 = new Point_2(edgeLength, 0);
 		Point_2 P2 = getThirdTriangleVertex(0, edgeLength,
 				edgeLength(this.edge.getNext()),
-				edgeLength(this.edge.getPrev()), -1);
+				edgeLength(this.edge.getPrev()), -this.tau);
 		Point_2 S = getSourceInPlane();
-		Point_2 B0 = new Point_2(b0 /edgeLength, 0) ;
-		Point_2 B1 = new Point_2(b1 / edgeLength, 0) ;
+		Point_2 B0 = new Point_2(b0 * edgeLength, 0) ;
+		Point_2 B1 = new Point_2(b1 * edgeLength, 0) ;
 
 		// Assuming b0 is not 0 and b1 is not edge.length() (meaning no saddle
 		// point as defined in the paper)
@@ -221,10 +225,11 @@ public class Window {
 		Point_2 M2 = intersectLines(S, B0, P1, P2);
 		Point_2 M3 = intersectLines(S, B1, P1, P2);
 		
-		boolean isM0Valid = linesIntersect(S, M0, P0, P2) ;
-		boolean isM1Valid = linesIntersect(S, M1, P0, P2) ;
-		boolean isM2Valid = linesIntersect(S, M2, P1, P2) ;
-		boolean isM3Valid = linesIntersect(S, M3, P1, P2) ;
+		double standardPrecision = 0.00000005 ;
+		boolean isM0Valid = sumMatch(P0, P2, M0, standardPrecision) ;
+		boolean isM1Valid = sumMatch(P0, P2, M1, standardPrecision) ;
+		boolean isM2Valid = sumMatch(P1, P2, M2, standardPrecision) ;
+		boolean isM3Valid = sumMatch(P1, P2, M3, standardPrecision) ;
 		
 		//We choose in which case we are by switching a lot ;
 		if (M0 == P0 && M3 == P1){

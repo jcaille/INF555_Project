@@ -27,7 +27,12 @@ public class MeshViewer extends PApplet {
 		  
 		  this.mesh=new SurfaceMesh(this, filename);
 		  eg = new ExactGeodesics(this.mesh.polyhedron3D);
-		  eg.compute();
+		  try {
+			eg.compute();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 		 
 		public void draw() {
@@ -41,7 +46,8 @@ public class MeshViewer extends PApplet {
 		  directionalLight(51, 50, 102, 0, 0, 1);
 		 
 		  translate(width/2.f,height/2.f,-1*height/2.f);
-		  this.strokeWeight(5);
+		  scale((float) 1.5) ;
+		  this.strokeWeight((float) .3);
 		  stroke(150,150,150);
 		  
 		  this.mesh.draw(eg.segments);
