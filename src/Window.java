@@ -202,14 +202,15 @@ public class Window {
 		// We use the same notation as in the article
 		LinkedList<Window> res = new LinkedList<Window>();
 		double edgeLength = edgeLength(this.edge);
+		
 		Point_2 P0 = new Point_2(0, 0);
 		Point_2 P1 = new Point_2(edgeLength, 0);
 		Point_2 P2 = getThirdTriangleVertex(0, edgeLength,
 				edgeLength(this.edge.getNext()),
 				edgeLength(this.edge.getPrev()), -this.tau);
 		Point_2 S = getSourceInPlane();
-		Point_2 B0 = new Point_2(b0 * edgeLength, 0) ;
-		Point_2 B1 = new Point_2(b1 * edgeLength, 0) ;
+		Point_2 B0 = new Point_2(b0, 0) ;
+		Point_2 B1 = new Point_2(b1, 0) ;
 
 		// Assuming b0 is not 0 and b1 is not edge.length() (meaning no saddle
 		// point as defined in the paper)

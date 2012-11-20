@@ -87,6 +87,23 @@ public class SurfaceMesh {
 		view.strokeWeight(1);
 	}
 	
+	public void drawPoints(LinkedList<Point_3> list){
+		for(Point_3 s: list) {
+			this.drawVertex(s);// draw segment
+		}
+	}
+	
+	public void drawVertex(Point_3 p) {
+		float s=(float)this.scaleFactor;
+		float x1=(float)p.getX().doubleValue()*s;
+		float y1=(float)p.getY().doubleValue()*s;
+		float z1=(float)p.getZ().doubleValue()*s;
+		
+		view.translate(x1, y1, z1);
+		view.sphere(s/50f);
+		view.translate(-x1, -y1, -z1);
+	}
+	
 	public void draw(LinkedList<Segment_3> list) {
 		this.drawAxis();
 		
