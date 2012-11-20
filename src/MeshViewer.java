@@ -51,6 +51,8 @@ public class MeshViewer extends PApplet {
 		  stroke(150,150,150);
 		  
 		  this.mesh.draw(eg.segments);
+
+		 // this.mesh.draw(eg.testSegments);
 		}
 		
 		/**

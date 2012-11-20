@@ -10,10 +10,12 @@ public class ExactGeodesics {
 	
 	public Polyhedron_3<Point_3> polyhedron3D;
 	public LinkedList<Segment_3> segments;
+	public LinkedList<Segment_3> testSegments ;
 	
 	public ExactGeodesics(Polyhedron_3<Point_3> polyhedron3D) {
 		this.polyhedron3D=polyhedron3D;
 		segments = new LinkedList<Segment_3>();
+		testSegments = new LinkedList<Segment_3>();
 	}
 	
 	public void compute() throws Exception
@@ -34,11 +36,24 @@ public class ExactGeodesics {
 		
 		Window myWindow = new Window(f.getEdge().getOpposite(), b0, b1, d0, d1, -1);
 		
-		this.segments.add(myWindow.getSegment());
+		this.testSegments.add(new Segment_3(a,b)) ;
+		this.testSegments.add(new Segment_3(b,c)) ;
+		this.testSegments.add(new Segment_3(c,a)) ;
+				
+		LinkedList<Window> windowsToDraw = new LinkedList<Window>() ;
+		LinkedList<Window> windowToPropagate = new LinkedList<Window>() ;
 		
-		LinkedList<Window> newWindows = myWindow.propagate() ;
-		for(Window w : newWindows){
-			System.out.println(".") ;
+		windowsToDraw.add(myWindow); 
+		windowToPropagate.add(myWindow);
+		
+		for(int i = 0 ; i<10 ; i++){
+			Window w = windowToPropagate.poll() ;
+			LinkedList<Window> newWindows  = w.propagate();
+			windowToPropagate.addAll(newWindows) ;
+			windowsToDraw.addAll(newWindows) ;
+		}
+
+		for(Window w : windowsToDraw){
 			this.segments.add(w.getSegment()) ;
 		}
 	}

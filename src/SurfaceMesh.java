@@ -112,7 +112,7 @@ public class SurfaceMesh {
 			this.drawSegment(p, q); // draw edge (p,q)
 		}
 		
-		view.strokeWeight(10); // line width (for geodesics)
+		view.strokeWeight(4); // line width (for geodesics)
 		view.stroke(255,0,0);
 		for(Segment_3 s: list) {
 			this.drawSegment(s.p, s.q); // draw segment
