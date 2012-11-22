@@ -18,7 +18,7 @@ public class Window {
 	double d0; // Geodesic distance from b0 to the source
 	double d1; // Geodesic distance from b1 to the source
 	int tau; // represents the direction in which the source lies. 1 if source
-				// is in the direction of edge.face, -1 if not.
+	// is in the direction of edge.face, -1 if not.
 
 	public Window(Halfedge<Point_3> edge, double b0, double b1, double d0, double d1, int tau) {
 		this.edge = edge ;
@@ -28,13 +28,13 @@ public class Window {
 		this.d1 = d1 ;
 		this.tau = tau ;
 	}
-	
+
 	public Window(Halfedge<Point_3> h, Point_2 P0 , Point_2 B0, Point_2 B1, Point_2 S, int tau){
 		//construct a window on halfedge h where
 		//P0 is the extremity of h, P0 = h.getVertex().getPoint()
 		//B0 and B1 are points on h, respectively the start and end of the window
 		//S is the source
-		
+
 		this.edge = h ;
 		this.b0 = (Double) P0.distanceFrom(B0) ;
 		this.b1 = (Double) P0.distanceFrom(B1) ;
@@ -42,9 +42,9 @@ public class Window {
 		this.d1 = (Double) S.distanceFrom(B1) ;
 		this.tau = tau ;
 	}
-	
+
 	public Window() {
-		
+
 	}
 
 	public Point_2 getThirdTriangleVertex(double b0, double b1, double d0,
@@ -68,7 +68,7 @@ public class Window {
 	public Point_2 getSourceInPlane() {
 		return getThirdTriangleVertex(b0, b1, d0, d1, tau);
 	}
-	
+
 	public static Point_2 barycenter(Point_2 A, Point_2 B, double t){
 		//returns (1-t)*A + t*B
 		double x = (1-t) * A.x + t * B.x ;
@@ -83,15 +83,15 @@ public class Window {
 		double z = (1-t) * A.z + t * B.z ;
 		return new Point_3(x,y,z) ;
 	}
-		
+
 	public static boolean linesIntersect(Point_2 A1, Point_2 A2, Point_2 B1, Point_2 B2) {
 		/* FROM : http://www.java-gaming.org/index.php?topic=22590.0 */
 		// Return false if either of the lines have zero length or one of the point is null
-		
+
 		if(A1 == null || A2 == null || B1 == null || B2 == null){
 			return false ;
 		}
-		
+
 		double x1 = A1.x;
 		double y1 = A1.y;
 		double x2 = A2.x;
@@ -100,7 +100,7 @@ public class Window {
 		double y3 = B1.y;
 		double x4 = B2.x;
 		double y4 = B2.y;
-		
+
 		if (x1 == x2 && y1 == y2 || x3 == x4 && y3 == y4) {
 			return false;
 		}
@@ -143,7 +143,7 @@ public class Window {
 			double y3LessY1 = y3 - y1;
 			double collinearityTestForP3 = x1 * (y2 - y3) + x2 * (y3LessY1)
 					+ x3 * (y1 - y2); // see
-										// http://mathworld.wolfram.com/Collinear.html
+			// http://mathworld.wolfram.com/Collinear.html
 			// If p3 is collinear with p1 and p2 then p4 will also be collinear,
 			// since p1-p2 is parallel with p3-p4
 			if (collinearityTestForP3 == 0) {
@@ -211,21 +211,21 @@ public class Window {
 		}
 		return Math.abs((Double) A.distanceFrom(B) - (Double) A.distanceFrom(M) - (Double) M.distanceFrom(B)) < precision ;
 	}
-	
+
 	public Segment_3 getSegment(){
 		Point_3 firstPoint = barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b0/edgeLength(this.edge)) ;
 		Point_3 secondPoint = barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b1/edgeLength(this.edge)) ;
-		
+
 		return new Segment_3(firstPoint, secondPoint) ;
 	}
-	
+
 	public LinkedList<Window> propagate() throws Exception {
 		// It returns a list of new windows on the adjacent edges.
 		// We use the same notation as in the article
-		
+
 		LinkedList<Window> res = new LinkedList<Window>();
 		double edgeLength = edgeLength(this.edge);
-		
+
 		Point_2 P0 = new Point_2(0, 0);
 		Point_2 P1 = new Point_2(edgeLength, 0);
 		Point_2 P2 = getThirdTriangleVertex(0, edgeLength,
@@ -244,126 +244,138 @@ public class Window {
 		//We first compute the intersection with PO-P2 ;
 		Point_2 M0 = intersectLines(S,B0, P0,P2);
 		Point_2 M1 = intersectLines(S,B1, P0,P2);
-		
+
 		//Then the intersection with P1-P2 ;
 		Point_2 M2 = intersectLines(S, B0, P1, P2);
 		Point_2 M3 = intersectLines(S, B1, P1, P2);
-		
-		double standardPrecision = 0.00000005 ;
-		boolean isM0Valid = sumMatch(P0, P2, M0, standardPrecision) ;
-		boolean isM1Valid = sumMatch(P0, P2, M1, standardPrecision) ;
-		boolean isM2Valid = sumMatch(P1, P2, M2, standardPrecision) ;
-		boolean isM3Valid = sumMatch(P1, P2, M3, standardPrecision) ;
-		
+
 		//We choose in which case we are by switching a lot ;
-		
-		if ((Double) M0.distanceFrom(P0) == 0 || (Double) M3.distanceFrom(P1) == 0){
-			System.out.println("Hehe") ;
-			if(!isM1Valid && !isM2Valid ){
-				//Case number 3
-				Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-				double newB0 = 0 ;
-				double newB1 = edgeLength(newEdge) ;
-				double newD0 = (Double) S.distanceFrom(P0) ;
-				double newD1 = (Double) S.distanceFrom(P2) ;
-				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-				
-				newEdge = this.edge.prev.opposite ;
-				newB0 = 0 ;
-				newB1 = edgeLength(newEdge) ;
-				newD0 = (Double) S.distanceFrom(P1);
-				newD1 = (Double) S.distanceFrom(P2);
-				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+		if((Double) S.distanceFrom(P0) == 0 || (Double) S.distanceFrom(P1) ==0){
+			//We assume that B0 = P0 and B1 = P1
+			if((Double) B0.distanceFrom(P0) == 0 && (Double) B1.distanceFrom(P1) == 0){
+					//We create the edge on P1/P2 (or P0/P2, depending on the position of the source)
+					res.add(new Window(edge.prev.opposite,P2, P2, P1, S, tau));
+					//Then the one on P0/P2. It's possible that we create a loop
+					//But that should be sorted by the merging phase
+					res.add(new Window(edge.next.opposite, P0, P0, P2, S, tau));
 			} else {
-				if(isM1Valid){
-					//Case number 1
-					//fist edge we add is the one with the same source
+				res.add(new Window(edge, P0, P0, P1, S, tau)) ;
+			}
+		} else {
+			double standardPrecision = 0.00000005 ;
+			boolean isM0Valid = sumMatch(P0, P2, M0, standardPrecision) ;
+			boolean isM1Valid = sumMatch(P0, P2, M1, standardPrecision) ;
+			boolean isM2Valid = sumMatch(P1, P2, M2, standardPrecision) ;
+			boolean isM3Valid = sumMatch(P1, P2, M3, standardPrecision) ;
+
+			if ((Double) M0.distanceFrom(P0) == 0 || (Double) M3.distanceFrom(P1) == 0){
+				System.out.println("Hehe") ;
+				if(!isM1Valid && !isM2Valid ){
+					//Case number 3
 					Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-					double newB0 = (Double) P0.distanceFrom(M0) ;
-					double newB1 = (Double) P0.distanceFrom(M1) ;
-					double newD0 = (Double) S.distanceFrom(M0) ;
-					double newD1 = (Double) S.distanceFrom(M1) ;
+					double newB0 = 0 ;
+					double newB1 = edgeLength(newEdge) ;
+					double newD0 = (Double) S.distanceFrom(P0) ;
+					double newD1 = (Double) S.distanceFrom(P2) ;
 					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-					
-					//Then the one with the pseudosource, on the same edge
-					newB0 = (Double) P0.distanceFrom(M1);
-					newB1 = (Double) P0.distanceFrom(P2);
-					newD0 = (Double) P1.distanceFrom(M1);
-					newD1 = (Double) P1.distanceFrom(P2);
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-					
-					//Then on the other edge with a full window
+
 					newEdge = this.edge.prev.opposite ;
 					newB0 = 0 ;
-					newB1 = (Double) P1.distanceFrom(P2) ;
-					newD0 = 0 ;
-					newD1 = newB1 ;
+					newB1 = edgeLength(newEdge) ;
+					newD0 = (Double) S.distanceFrom(P1);
+					newD1 = (Double) S.distanceFrom(P2);
 					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
 				} else {
-					//Case number 2
-					//First the regular edge
-					Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
-					double newB0 = (Double) P2.distanceFrom(M2) ;
-					double newB1 = (Double) P2.distanceFrom(M3) ;
-					double newD0 = (Double) S.distanceFrom(M2) ;
-					double newD1 = (Double) S.distanceFrom(M3) ;
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-					
-					//Then new pseudosource, but same edge
-					newB0 = 0;
-					newB1 = (Double) P2.distanceFrom(M2);
-					newD0 = (Double) P0.distanceFrom(P2);
-					newD1 = (Double) P0.distanceFrom(M3);
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-					
-					//Then the opposite edge
-					newEdge = this.edge.prev.opposite ;
-					newB0 = 0 ;
-					newB1 = (Double) P0.distanceFrom(P2) ;
-					newD0 = 0 ;
-					newD1 = newB1 ;
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+					if(isM1Valid){
+						//Case number 1
+						//fist edge we add is the one with the same source
+						Halfedge<Point_3> newEdge = this.edge.next.opposite ;
+						double newB0 = (Double) P0.distanceFrom(M0) ;
+						double newB1 = (Double) P0.distanceFrom(M1) ;
+						double newD0 = (Double) S.distanceFrom(M0) ;
+						double newD1 = (Double) S.distanceFrom(M1) ;
+						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+						//Then the one with the pseudosource, on the same edge
+						newB0 = (Double) P0.distanceFrom(M1);
+						newB1 = (Double) P0.distanceFrom(P2);
+						newD0 = (Double) P1.distanceFrom(M1);
+						newD1 = (Double) P1.distanceFrom(P2);
+						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+						//Then on the other edge with a full window
+						newEdge = this.edge.prev.opposite ;
+						newB0 = 0 ;
+						newB1 = (Double) P1.distanceFrom(P2) ;
+						newD0 = 0 ;
+						newD1 = newB1 ;
+						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+					} else {
+						//Case number 2
+						//First the regular edge
+						Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
+						double newB0 = (Double) P2.distanceFrom(M2) ;
+						double newB1 = (Double) P2.distanceFrom(M3) ;
+						double newD0 = (Double) S.distanceFrom(M2) ;
+						double newD1 = (Double) S.distanceFrom(M3) ;
+						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+						//Then new pseudosource, but same edge
+						newB0 = 0;
+						newB1 = (Double) P2.distanceFrom(M2);
+						newD0 = (Double) P0.distanceFrom(P2);
+						newD1 = (Double) P0.distanceFrom(M3);
+						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+						//Then the opposite edge
+						newEdge = this.edge.prev.opposite ;
+						newB0 = 0 ;
+						newB1 = (Double) P0.distanceFrom(P2) ;
+						newD0 = 0 ;
+						newD1 = newB1 ;
+						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+					}
 				}
+			} else if( !isM0Valid && !isM1Valid && isM2Valid && isM3Valid){
+				//case number 4
+				Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
+				double newB0 = (Double) P2.distanceFrom(M2) ;
+				double newB1 = (Double) P2.distanceFrom(M3) ;
+				double newD0 = (Double) S.distanceFrom(M2) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
+				double newD1 = (Double) S.distanceFrom(M3) ;
+				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+			} else if ( isM0Valid && isM1Valid && !isM2Valid && !isM3Valid){
+				//case number 4bis
+				Halfedge<Point_3> newEdge = this.edge.next.opposite ;
+				double newB0 = (Double) P0.distanceFrom(M0) ;
+				double newB1 = (Double) P0.distanceFrom(M1) ;
+				double newD0 = (Double) S.distanceFrom(M0) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
+				double newD1 = (Double) S.distanceFrom(M1) ;
+				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+			} else if ( isM0Valid && !isM1Valid && !isM2Valid && isM3Valid){
+				//case number 5
+				Halfedge<Point_3> newEdge = this.edge.next.opposite ;
+				double newB0 = (Double) P0.distanceFrom(M0) ;
+				double newB1 = (Double) P0.distanceFrom(P2) ;
+				double newD0 = (Double) S.distanceFrom(M0) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
+				double newD1 = (Double) S.distanceFrom(P2) ;
+				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+
+				newEdge = this.edge.prev.opposite ;
+				newB0 = 0;
+				newB1 = (Double) P2.distanceFrom(M3) ;
+				newD0 = (Double) S.distanceFrom(P2) ;
+				newD1 = (Double) S.distanceFrom(M3) ;
+				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ; 
+
+			} else {
+				System.out.println("Unhandeld case for right know ...");
+				System.out.println("Stopping propagation") ;
 			}
-		} else if( !isM0Valid && !isM1Valid && isM2Valid && isM3Valid){
-			//case number 4
-			Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
-			double newB0 = (Double) P2.distanceFrom(M2) ;
-			double newB1 = (Double) P2.distanceFrom(M3) ;
-			double newD0 = (Double) S.distanceFrom(M2) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
-			double newD1 = (Double) S.distanceFrom(M3) ;
-			res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-			
-		} else if ( isM0Valid && isM1Valid && !isM2Valid && !isM3Valid){
-			//case number 4bis
-			Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-			double newB0 = (Double) P0.distanceFrom(M0) ;
-			double newB1 = (Double) P0.distanceFrom(M1) ;
-			double newD0 = (Double) S.distanceFrom(M0) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
-			double newD1 = (Double) S.distanceFrom(M1) ;
-			res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-			
-		} else if ( isM0Valid && !isM1Valid && !isM2Valid && isM3Valid){
-			//case number 5
-			Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-			double newB0 = (Double) P0.distanceFrom(M0) ;
-			double newB1 = (Double) P0.distanceFrom(P2) ;
-			double newD0 = (Double) S.distanceFrom(M0) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
-			double newD1 = (Double) S.distanceFrom(P2) ;
-			res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-			
-			newEdge = this.edge.prev.opposite ;
-			newB0 = 0;
-			newB1 = (Double) P2.distanceFrom(M3) ;
-			newD0 = (Double) S.distanceFrom(P2) ;
-			newD1 = (Double) S.distanceFrom(M3) ;
-			res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ; 
-			
-		} else {
-			System.out.println("Unhandeld case for right know ...");
-			System.out.println("Stopping propagation") ;
 		}
-		
 		return res;
 	}
 }

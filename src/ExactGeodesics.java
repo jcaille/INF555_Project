@@ -25,8 +25,8 @@ public class ExactGeodesics {
 		Point_3 b = f.getEdge().getOpposite().getVertex().getPoint() ;
 		Point_3 c = f.getEdge().getNext().getVertex().getPoint() ;
 		
-		Point_3 X = Window.barycenter(b, a, .1) ;
-		Point_3 Y = Window.barycenter(b, a, .8) ;
+		Point_3 X = Window.barycenter(b, a, 0.55) ;
+		Point_3 Y = Window.barycenter(b, a, .66) ;
 				
 		Point_3 source = Window.barycenter(Window.barycenter(a, b, 0.5), c, 0.5) ;
 		double b0 = (Double) b.distanceFrom(X) ; System.out.println(b0) ;
@@ -43,8 +43,9 @@ public class ExactGeodesics {
 		
 		windowToPropagate.add(myWindow);
 
-		
-		for(int i = 0 ; i<20; i++){
+		int i = 0 ;
+		while(!windowToPropagate.isEmpty() && i < 500){
+			i++;
 			Window w = windowToPropagate.poll() ;
 			windowsToDraw.add(w) ;
 			LinkedList<Window> newWindows  = w.propagate();
