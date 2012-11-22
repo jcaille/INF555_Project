@@ -12,6 +12,7 @@ public class Window {
 	// Represents a windows that we will propagate on the mesh
 
 	Halfedge<Point_3> edge;
+	double sigma ; //Distance from pseudo-source to source
 	double b0; // Distance from nearest window's end to edge.vertex
 	double b1; // Distance from farthest window's end to edge.vertex
 	double d0; // Geodesic distance from b0 to the source
@@ -25,6 +26,20 @@ public class Window {
 		this.b1 = b1 ;
 		this.d0 = d0 ;
 		this.d1 = d1 ;
+		this.tau = tau ;
+	}
+	
+	public Window(Halfedge<Point_3> h, Point_2 P0 , Point_2 B0, Point_2 B1, Point_2 S, int tau){
+		//construct a window on halfedge h where
+		//P0 is the extremity of h, P0 = h.getVertex().getPoint()
+		//B0 and B1 are points on h, respectively the start and end of the window
+		//S is the source
+		
+		this.edge = h ;
+		this.b0 = (Double) P0.distanceFrom(B0) ;
+		this.b1 = (Double) P0.distanceFrom(B1) ;
+		this.d0 = (Double) S.distanceFrom(B0) ;
+		this.d1 = (Double) S.distanceFrom(B1) ;
 		this.tau = tau ;
 	}
 	
@@ -68,6 +83,7 @@ public class Window {
 		double z = (1-t) * A.z + t * B.z ;
 		return new Point_3(x,y,z) ;
 	}
+		
 	public static boolean linesIntersect(Point_2 A1, Point_2 A2, Point_2 B1, Point_2 B2) {
 		/* FROM : http://www.java-gaming.org/index.php?topic=22590.0 */
 		// Return false if either of the lines have zero length or one of the point is null
@@ -189,17 +205,24 @@ public class Window {
 	}
 
 	protected static boolean sumMatch(Point_2 A, Point_2 B, Point_2 M, double precision){
+		//We do check if one of them is null, returning false in this case
+		if( A == null || B == null || M == null){
+			return false ;
+		}
 		return Math.abs((Double) A.distanceFrom(B) - (Double) A.distanceFrom(M) - (Double) M.distanceFrom(B)) < precision ;
 	}
+	
 	public Segment_3 getSegment(){
 		Point_3 firstPoint = barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b0/edgeLength(this.edge)) ;
 		Point_3 secondPoint = barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b1/edgeLength(this.edge)) ;
 		
 		return new Segment_3(firstPoint, secondPoint) ;
 	}
+	
 	public LinkedList<Window> propagate() throws Exception {
 		// It returns a list of new windows on the adjacent edges.
 		// We use the same notation as in the article
+		
 		LinkedList<Window> res = new LinkedList<Window>();
 		double edgeLength = edgeLength(this.edge);
 		
@@ -233,7 +256,9 @@ public class Window {
 		boolean isM3Valid = sumMatch(P1, P2, M3, standardPrecision) ;
 		
 		//We choose in which case we are by switching a lot ;
-		if (M0 == P0 && M3 == P1){
+		
+		if ((Double) M0.distanceFrom(P0) == 0 || (Double) M3.distanceFrom(P1) == 0){
+			System.out.println("Hehe") ;
 			if(!isM1Valid && !isM2Valid ){
 				//Case number 3
 				Halfedge<Point_3> newEdge = this.edge.next.opposite ;
@@ -252,19 +277,22 @@ public class Window {
 			} else {
 				if(isM1Valid){
 					//Case number 1
+					//fist edge we add is the one with the same source
 					Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-					double newB0 = 0 ;
+					double newB0 = (Double) P0.distanceFrom(M0) ;
 					double newB1 = (Double) P0.distanceFrom(M1) ;
-					double newD0 = (Double) S.distanceFrom(P0) ;
+					double newD0 = (Double) S.distanceFrom(M0) ;
 					double newD1 = (Double) S.distanceFrom(M1) ;
 					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
 					
-					newB0 = (Double) P1.distanceFrom(M1);
-					newB1 = (Double) P1.distanceFrom(P2);
+					//Then the one with the pseudosource, on the same edge
+					newB0 = (Double) P0.distanceFrom(M1);
+					newB1 = (Double) P0.distanceFrom(P2);
 					newD0 = (Double) P1.distanceFrom(M1);
 					newD1 = (Double) P1.distanceFrom(P2);
 					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
 					
+					//Then on the other edge with a full window
 					newEdge = this.edge.prev.opposite ;
 					newB0 = 0 ;
 					newB1 = (Double) P1.distanceFrom(P2) ;
@@ -273,19 +301,22 @@ public class Window {
 					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
 				} else {
 					//Case number 2
+					//First the regular edge
 					Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
-					double newB0 = 0 ;
-					double newB1 = (Double) P1.distanceFrom(M3) ;
-					double newD0 = (Double) S.distanceFrom(P1) ;
+					double newB0 = (Double) P2.distanceFrom(M2) ;
+					double newB1 = (Double) P2.distanceFrom(M3) ;
+					double newD0 = (Double) S.distanceFrom(M2) ;
 					double newD1 = (Double) S.distanceFrom(M3) ;
 					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
 					
-					newB0 = (Double) P0.distanceFrom(M3);
-					newB1 = (Double) P0.distanceFrom(P2);
-					newD0 = (Double) P0.distanceFrom(M3);
-					newD1 = (Double) P0.distanceFrom(P2);
+					//Then new pseudosource, but same edge
+					newB0 = 0;
+					newB1 = (Double) P2.distanceFrom(M2);
+					newD0 = (Double) P0.distanceFrom(P2);
+					newD1 = (Double) P0.distanceFrom(M3);
 					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
 					
+					//Then the opposite edge
 					newEdge = this.edge.prev.opposite ;
 					newB0 = 0 ;
 					newB1 = (Double) P0.distanceFrom(P2) ;

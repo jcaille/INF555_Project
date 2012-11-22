@@ -41,16 +41,14 @@ public class ExactGeodesics {
 		LinkedList<Window> windowsToDraw = new LinkedList<Window>() ;
 		LinkedList<Window> windowToPropagate = new LinkedList<Window>() ;
 		
-		windowsToDraw.add(myWindow); 
-//		windowsToDraw.addAll(myWindow.propagate()) ;
 		windowToPropagate.add(myWindow);
 
 		
-		for(int i = 0 ; i<20 ; i++){
+		for(int i = 0 ; i<20; i++){
 			Window w = windowToPropagate.poll() ;
+			windowsToDraw.add(w) ;
 			LinkedList<Window> newWindows  = w.propagate();
 			windowToPropagate.addAll(newWindows) ;
-			windowsToDraw.addAll(newWindows) ;
 		}
 
 		for(Window w : windowsToDraw){
