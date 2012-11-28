@@ -270,71 +270,29 @@ public class Window {
 			boolean isM3Valid = sumMatch(P1, P2, M3, standardPrecision) ;
 
 			if ((Double) M0.distanceFrom(P0) == 0 || (Double) M3.distanceFrom(P1) == 0){
-				System.out.println("Hehe") ;
 				if(!isM1Valid && !isM2Valid ){
 					//Case number 3
 					Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-					double newB0 = 0 ;
-					double newB1 = edgeLength(newEdge) ;
-					double newD0 = (Double) S.distanceFrom(P0) ;
-					double newD1 = (Double) S.distanceFrom(P2) ;
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-					newEdge = this.edge.prev.opposite ;
-					newB0 = 0 ;
-					newB1 = edgeLength(newEdge) ;
-					newD0 = (Double) S.distanceFrom(P1);
-					newD1 = (Double) S.distanceFrom(P2);
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+					res.add(new Window(newEdge, P0, P0, P2, S, tau)) ;
+					newEdge = this.edge.prev.opposite ;					
+					res.add(new Window(newEdge, P2, P2, P1, S, tau));
 				} else {
 					if(isM1Valid){
 						//Case number 1
-						//fist edge we add is the one with the same source
-						Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-						double newB0 = (Double) P0.distanceFrom(M0) ;
-						double newB1 = (Double) P0.distanceFrom(M1) ;
-						double newD0 = (Double) S.distanceFrom(M0) ;
-						double newD1 = (Double) S.distanceFrom(M1) ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
+						//first edge we add is the one with the same source
+						res.add(new Window(this.edge.next.opposite, P0, M0, M1, S, tau)) ;
 						//Then the one with the pseudosource, on the same edge
-						newB0 = (Double) P0.distanceFrom(M1);
-						newB1 = (Double) P0.distanceFrom(P2);
-						newD0 = (Double) P1.distanceFrom(M1);
-						newD1 = (Double) P1.distanceFrom(P2);
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
+						res.add(new Window(this.edge.next.opposite, P0, M1, P2, P1, tau)) ;
 						//Then on the other edge with a full window
-						newEdge = this.edge.prev.opposite ;
-						newB0 = 0 ;
-						newB1 = (Double) P1.distanceFrom(P2) ;
-						newD0 = 0 ;
-						newD1 = newB1 ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+						res.add(new Window(this.edge.prev.opposite, P2, P2, P1, P1, tau));
 					} else {
 						//Case number 2
 						//First the regular edge
-						Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
-						double newB0 = (Double) P2.distanceFrom(M2) ;
-						double newB1 = (Double) P2.distanceFrom(M3) ;
-						double newD0 = (Double) S.distanceFrom(M2) ;
-						double newD1 = (Double) S.distanceFrom(M3) ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
+						res.add(new Window(this.edge.prev.opposite, P2, M2, M3, S, tau));
 						//Then new pseudosource, but same edge
-						newB0 = 0;
-						newB1 = (Double) P2.distanceFrom(M2);
-						newD0 = (Double) P0.distanceFrom(P2);
-						newD1 = (Double) P0.distanceFrom(M3);
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
+						res.add(new Window(this.edge.prev.opposite, P2, P2, M2, P0, tau));
 						//Then the opposite edge
-						newEdge = this.edge.prev.opposite ;
-						newB0 = 0 ;
-						newB1 = (Double) P0.distanceFrom(P2) ;
-						newD0 = 0 ;
-						newD1 = newB1 ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
+						res.add(new Window(this.edge.next.opposite, P0, P0, P2, P0, tau)) ;
 					}
 				}
 			} else if( !isM0Valid && !isM1Valid && isM2Valid && isM3Valid){

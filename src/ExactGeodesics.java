@@ -18,15 +18,15 @@ public class ExactGeodesics {
 		points = new LinkedList<Point_3>();
 	}
 	
-	public void compute() throws Exception
+	public void compute(int limit) throws Exception
 	{
 		Face<Point_3> f = this.polyhedron3D.facets.get(5) ;
 		Point_3 a = f.getEdge().getVertex().getPoint() ;
 		Point_3 b = f.getEdge().getOpposite().getVertex().getPoint() ;
 		Point_3 c = f.getEdge().getNext().getVertex().getPoint() ;
 		
-		Point_3 X = Window.barycenter(b, a, 0.55) ;
-		Point_3 Y = Window.barycenter(b, a, .66) ;
+		Point_3 X = Window.barycenter(b, a, 0.1) ;
+		Point_3 Y = Window.barycenter(b, a, .9) ;
 				
 		Point_3 source = Window.barycenter(Window.barycenter(a, b, 0.5), c, 0.5) ;
 		double b0 = (Double) b.distanceFrom(X) ; System.out.println(b0) ;
@@ -44,7 +44,7 @@ public class ExactGeodesics {
 		windowToPropagate.add(myWindow);
 
 		int i = 0 ;
-		while(!windowToPropagate.isEmpty() && i < 500){
+		while(!windowToPropagate.isEmpty() && i < limit){
 			i++;
 			Window w = windowToPropagate.poll() ;
 			windowsToDraw.add(w) ;
@@ -52,7 +52,14 @@ public class ExactGeodesics {
 			windowToPropagate.addAll(newWindows) ;
 		}
 
+		this.segments = new LinkedList<Segment_3>() ;
+
 		for(Window w : windowsToDraw){
+			this.segments.add(w.getSegment()) ;
+		}
+		
+		
+		for(Window w : windowToPropagate) {
 			this.segments.add(w.getSegment()) ;
 		}
 	}
