@@ -9,15 +9,14 @@ import Jcg.geometry.*;
  *
  */
 public class MeshViewer extends PApplet {
-	int limit = 10 ;
-	
+
 	SurfaceMesh mesh;
 	ExactGeodesics eg;
 	//String filename="OFF/high_genus.off";
-//	String filename="OFF/sphere.off";
+	String filename="OFF/sphere.off";
 	//String filename="OFF/cube.off";
-	String filename="OFF/torus_33.off";
-//	String filename="OFF/tore.off";
+	//String filename="OFF/torus_33.off";
+	//String filename="OFF/tore.off";
 	//String filename="OFF/tri_round_cube.off";
 	//String filename="OFF/tri_hedra.off";
 	//String filename="OFF/tri_horse.off";
@@ -29,23 +28,12 @@ public class MeshViewer extends PApplet {
 		  this.mesh=new SurfaceMesh(this, filename);
 		  eg = new ExactGeodesics(this.mesh.polyhedron3D);
 		  try {
-			eg.compute(limit);
+			eg.compute();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-//	public void keyPressed(){
-//		  switch(key) {
-//		    case('s'):case('S'): this.limit++ ; try {
-//				eg.compute(limit);
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} break;
-//		  }
-//	}
 		 
 		public void draw() {
 		  background(0);
