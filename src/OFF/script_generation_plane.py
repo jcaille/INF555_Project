@@ -8,7 +8,7 @@ center = True
 x_step = 0.5
 y_step = 0.5
 
-opening_string = "OFF\n"
+opening_string = "OFF \n"
 vertex_string = ""
 graph_string = "\n"
 number_of_vertices = 0
