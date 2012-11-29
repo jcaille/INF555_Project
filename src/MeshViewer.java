@@ -11,6 +11,7 @@ import Jcg.geometry.*;
 public class MeshViewer extends PApplet {
 
 	SurfaceMesh mesh;
+	ExactDijkstra dj;
 	ExactGeodesics eg;
 	//String filename="OFF/high_genus.off";
 	String filename="OFF/sphere.off";
@@ -26,8 +27,10 @@ public class MeshViewer extends PApplet {
 		  ArcBall arcball = new ArcBall(this);
 		  
 		  this.mesh=new SurfaceMesh(this, filename);
+		  dj = new ExactDijkstra(this.mesh.polyhedron3D);
 		  eg = new ExactGeodesics(this.mesh.polyhedron3D);
 		  try {
+			  dj.compute();
 			eg.compute();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
