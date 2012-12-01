@@ -14,4 +14,26 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>Jama-1.0.2.jar</name>
+			<type>1</type>
+			<locationURI>WORKSPACE_LOC/libINF555/Jama-1.0.2.jar</locationURI>
+		</link>
+		<link>
+			<name>Jcg.jar</name>
+			<type>1</type>
+			<locationURI>WORKSPACE_LOC/libINF555/Jcg.jar</locationURI>
+		</link>
+		<link>
+			<name>TC.jar</name>
+			<type>1</type>
+			<locationURI>WORKSPACE_LOC/libINF555/TC.jar</locationURI>
+		</link>
+		<link>
+			<name>core.jar</name>
+			<type>1</type>
+			<locationURI>WORKSPACE_LOC/libINF555/core.jar</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

@@ -4,9 +4,9 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="/libINF555/core.jar"/>
-	<classpathentry kind="lib" path="/libINF555/Jama-1.0.2.jar"/>
-	<classpathentry kind="lib" path="/libINF555/Jcg.jar"/>
-	<classpathentry kind="lib" path="/libINF555/TC.jar"/>
+	<classpathentry kind="lib" path="core.jar"/>
+	<classpathentry kind="lib" path="Jama-1.0.2.jar"/>
+	<classpathentry kind="lib" path="Jcg.jar"/>
+	<classpathentry kind="lib" path="TC.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
