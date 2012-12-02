@@ -41,8 +41,8 @@ public class ExactDijkstra {
 		map.put(s,0.);
 		frontier.add(new Pair(s,0));
 
-		while(map.size() < this.polyhedron3D.vertices.size())
-		{
+		while(!frontier.isEmpty())	//We could stop before that, but it is not necessary since
+		{							//the algorithm quickly ends after finding minimal distances
 			explore(map,frontier);
 		}
 
