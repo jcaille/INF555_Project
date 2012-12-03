@@ -55,7 +55,7 @@ public class Window {
 		// D0 and D1 the length of each side and tau the direction in which the
 		// third vertex lies
 
-		assert (b1 >= b0);
+		assert (b1 > b0);
 		assert (b1 - b0 <= d1 + d0);
 		assert (Math.abs(tau) == 1);
 
@@ -220,12 +220,10 @@ public class Window {
 	}
 
 	public LinkedList<Window> propagate() throws Exception {
-		// It returns a list of new windows on the adjacent edges.
-		// We use the same notation as in the article
-
 		LinkedList<Window> res = new LinkedList<Window>();
 		double edgeLength = edgeLength(this.edge);
 
+		//Compute the points (notations are the same as in the article)
 		Point_2 P0 = new Point_2(0, 0);
 		Point_2 P1 = new Point_2(edgeLength, 0);
 		Point_2 P2 = getThirdTriangleVertex(0, edgeLength,
@@ -234,148 +232,145 @@ public class Window {
 		Point_2 S = getSourceInPlane();
 		Point_2 B0 = new Point_2(b0, 0) ;
 		Point_2 B1 = new Point_2(b1, 0) ;
+		
+		double standardPrecision = 0.00000005 ;
 
-		// Assuming b0 is not 0 and b1 is not edge.length() (meaning no saddle
-		// point as defined in the paper)
-		if (this.b0 == 0 || this.b1 == edgeLength) {
-			System.out.println("We've got a saddle point");
+		boolean case0 = (Double) S.distanceFrom(P0) < standardPrecision ;
+		boolean case0bis = (Double) S.distanceFrom(P1) < standardPrecision ;
+		
+		//CASE 0 AND 0' are treated early
+		if ( case0 ){
+			//CASE 0
+			//We add the two full windows 
+			
+			Halfedge<Point_3> h = this.edge.next.opposite ;
+			Window myWindow = new Window(h, P0, P0, P2, S, tau);
+			res.push(myWindow) ;
+			
+			h = this.edge.prev.opposite ;
+			myWindow = new Window(h, P2, P2, P1, S, tau);
+			res.push(myWindow) ;
+			
+			return res ;
+		} else if ( case0bis ){
+			//CASE 0
+			//We add the two full windows 
+			
+			Halfedge<Point_3> h = this.edge.next.opposite ;
+			Window myWindow = new Window(h, P0, P0, P2, S, tau);
+			res.push(myWindow) ;
+			
+			h = this.edge.prev.opposite ;
+			myWindow = new Window(h, P2, P2, P1, S, tau);
+			res.push(myWindow) ;
+			
+			return res ;
 		}
-
-		//We first compute the intersection with PO-P2 ;
+		
+		//We compute the intersection with PO-P2 ;
 		Point_2 M0 = intersectLines(S,B0, P0,P2);
 		Point_2 M1 = intersectLines(S,B1, P0,P2);
 
 		//Then the intersection with P1-P2 ;
 		Point_2 M2 = intersectLines(S, B0, P1, P2);
 		Point_2 M3 = intersectLines(S, B1, P1, P2);
-
-		//We choose in which case we are by switching a lot ;
-
-		if((Double) S.distanceFrom(P0) == 0 || (Double) S.distanceFrom(P1) ==0){
-			//We assume that B0 = P0 and B1 = P1
-			if((Double) B0.distanceFrom(P0) == 0 && (Double) B1.distanceFrom(P1) == 0){
-					//We create the edge on P1/P2 (or P0/P2, depending on the position of the source)
-					res.add(new Window(edge.prev.opposite,P2, P2, P1, S, tau));
-					//Then the one on P0/P2. It's possible that we create a loop
-					//But that should be sorted by the merging phase
-					res.add(new Window(edge.next.opposite, P0, P0, P2, S, tau));
+	
+		//We check if those points are valid (meaning if they lie in their respective segments : P1-P2 or P0-P2)
+		//standardPrecision is used for rounding errors
+		
+		boolean isM0Valid = sumMatch(P0, P2, M0, standardPrecision) ;
+		boolean isM1Valid = sumMatch(P0, P2, M1, standardPrecision) ;
+		boolean isM2Valid = sumMatch(P1, P2, M2, standardPrecision) ;
+		boolean isM3Valid = sumMatch(P1, P2, M3, standardPrecision) ;
+		
+		//We define the cases as precised in the report
+		boolean case1 = isM0Valid && isM1Valid && !isM2Valid && isM3Valid && (Double) M3.distanceFrom(P1) < standardPrecision ;
+		boolean case2 = isM0Valid && !isM1Valid && isM2Valid && isM3Valid && (Double) M0.distanceFrom(P0) < standardPrecision ;
+		boolean case3 = isM0Valid && !isM1Valid && !isM2Valid && isM3Valid ;
+		boolean case4 = !isM0Valid && !isM1Valid && isM2Valid && isM3Valid ;
+		boolean case5 = isM0Valid && isM1Valid && !isM2Valid && !isM3Valid ;
+		
+		if(case1){
+			//CASE 1
+			//We've got a saddle point
+			//We add three window, two of them having pseudo-sources
+			
+			Halfedge<Point_3> h = this.edge.next.opposite ;
+			Window myWindow = new Window(h, P0, M0, M1, S, tau);
+			res.push(myWindow);
+			
+			if( (Double) M1.distanceFrom(P2) > standardPrecision ){
+				myWindow = new Window(h, P0, M1, P2, P1, tau);
+				res.push(myWindow);				
 			} else {
-				res.add(new Window(edge, P0, P0, P1, S, tau)) ;
+				System.out.println("We're in a pretty specific subcase of 1");
 			}
-		} else {
-			double standardPrecision = 0.00000005 ;
-			boolean isM0Valid = sumMatch(P0, P2, M0, standardPrecision) ;
-			boolean isM1Valid = sumMatch(P0, P2, M1, standardPrecision) ;
-			boolean isM2Valid = sumMatch(P1, P2, M2, standardPrecision) ;
-			boolean isM3Valid = sumMatch(P1, P2, M3, standardPrecision) ;
-
-			if ((Double) M0.distanceFrom(P0) == 0 || (Double) M3.distanceFrom(P1) == 0){
-				System.out.println("Hehe") ;
-				if(!isM1Valid && !isM2Valid ){
-					//Case number 3
-					Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-					double newB0 = 0 ;
-					double newB1 = edgeLength(newEdge) ;
-					double newD0 = (Double) S.distanceFrom(P0) ;
-					double newD1 = (Double) S.distanceFrom(P2) ;
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-					newEdge = this.edge.prev.opposite ;
-					newB0 = 0 ;
-					newB1 = edgeLength(newEdge) ;
-					newD0 = (Double) S.distanceFrom(P1);
-					newD1 = (Double) S.distanceFrom(P2);
-					res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-				} else {
-					if(isM1Valid){
-						//Case number 1
-						//fist edge we add is the one with the same source
-						Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-						double newB0 = (Double) P0.distanceFrom(M0) ;
-						double newB1 = (Double) P0.distanceFrom(M1) ;
-						double newD0 = (Double) S.distanceFrom(M0) ;
-						double newD1 = (Double) S.distanceFrom(M1) ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-						//Then the one with the pseudosource, on the same edge
-						newB0 = (Double) P0.distanceFrom(M1);
-						newB1 = (Double) P0.distanceFrom(P2);
-						newD0 = (Double) P1.distanceFrom(M1);
-						newD1 = (Double) P1.distanceFrom(P2);
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-						//Then on the other edge with a full window
-						newEdge = this.edge.prev.opposite ;
-						newB0 = 0 ;
-						newB1 = (Double) P1.distanceFrom(P2) ;
-						newD0 = 0 ;
-						newD1 = newB1 ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-					} else {
-						//Case number 2
-						//First the regular edge
-						Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
-						double newB0 = (Double) P2.distanceFrom(M2) ;
-						double newB1 = (Double) P2.distanceFrom(M3) ;
-						double newD0 = (Double) S.distanceFrom(M2) ;
-						double newD1 = (Double) S.distanceFrom(M3) ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-						//Then new pseudosource, but same edge
-						newB0 = 0;
-						newB1 = (Double) P2.distanceFrom(M2);
-						newD0 = (Double) P0.distanceFrom(P2);
-						newD1 = (Double) P0.distanceFrom(M3);
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-						//Then the opposite edge
-						newEdge = this.edge.prev.opposite ;
-						newB0 = 0 ;
-						newB1 = (Double) P0.distanceFrom(P2) ;
-						newD0 = 0 ;
-						newD1 = newB1 ;
-						res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-					}
-				}
-			} else if( !isM0Valid && !isM1Valid && isM2Valid && isM3Valid){
-				//case number 4
-				Halfedge<Point_3> newEdge = this.edge.prev.opposite ;
-				double newB0 = (Double) P2.distanceFrom(M2) ;
-				double newB1 = (Double) P2.distanceFrom(M3) ;
-				double newD0 = (Double) S.distanceFrom(M2) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
-				double newD1 = (Double) S.distanceFrom(M3) ;
-				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-			} else if ( isM0Valid && isM1Valid && !isM2Valid && !isM3Valid){
-				//case number 4bis
-				Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-				double newB0 = (Double) P0.distanceFrom(M0) ;
-				double newB1 = (Double) P0.distanceFrom(M1) ;
-				double newD0 = (Double) S.distanceFrom(M0) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
-				double newD1 = (Double) S.distanceFrom(M1) ;
-				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-			} else if ( isM0Valid && !isM1Valid && !isM2Valid && isM3Valid){
-				//case number 5
-				Halfedge<Point_3> newEdge = this.edge.next.opposite ;
-				double newB0 = (Double) P0.distanceFrom(M0) ;
-				double newB1 = (Double) P0.distanceFrom(P2) ;
-				double newD0 = (Double) S.distanceFrom(M0) ; //Might be a problem ... Do we stay in the previous plan, or compute new plan ?
-				double newD1 = (Double) S.distanceFrom(P2) ;
-				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ;
-
-				newEdge = this.edge.prev.opposite ;
-				newB0 = 0;
-				newB1 = (Double) P2.distanceFrom(M3) ;
-				newD0 = (Double) S.distanceFrom(P2) ;
-				newD1 = (Double) S.distanceFrom(M3) ;
-				res.add(new Window(newEdge, newB0, newB1, newD0, newD1, this.tau)) ; 
-
-			} else {
-				System.out.println("Unhandeld case for right know ...");
-				System.out.println("Stopping propagation") ;
-			}
+			
+			h = this.edge.prev.opposite ;
+			myWindow = new Window(h, P2, P2, P1, P1, tau);
+			res.push(myWindow);
+			
+			return res;
 		}
-		return res;
+		
+		if(case2){
+			//CASE 2
+			//We've got a saddle point
+			//We add three window, two of them having pseudo-sources
+			
+			Halfedge<Point_3> h = this.edge.prev.opposite ;
+			Window myWindow = new Window(h, P2, M2, M3, S, tau);
+			res.push(myWindow);
+			
+			if ((Double) M2.distanceFrom(P2) > standardPrecision) {
+				myWindow = new Window(h, P2, P2, M2, P0, tau);
+				res.push(myWindow);
+			} else {
+				System.out.println("We're in a pretty specific subcase of 2");
+			}
+
+			
+			h = this.edge.next.opposite ;
+			myWindow = new Window(h, P0, P0, P2, P0, tau);
+			res.push(myWindow);
+			
+			return res ;
+		}
+		if(case3){
+			//CASE 3
+			//We add two windows with the same source
+			
+			Halfedge<Point_3> h = this.edge.next.opposite;
+			Window myWindow = new Window(h, P0, M0, P2, S, tau);
+			res.push(myWindow);
+			
+			h = this.edge.prev.opposite ;
+			myWindow = new Window(h, P2, P2, M3, S, tau);
+			res.push(myWindow);
+			
+			return res ;
+		}
+		if(case4){
+			//CASE 4
+			//We add only one window to the P1-P2 edge
+			
+			Halfedge<Point_3> h = this.edge.prev.opposite ;
+			Window myWindow = new Window(h, P2, M2, M3, S, tau);
+			res.push(myWindow);
+			return res;
+		}
+		if(case5){
+			//CASE 5
+			//We add only one window on the P0-P2 edge
+			
+			Halfedge<Point_3> h = this.edge.next.opposite ;
+			Window myWindow = new Window(h, P0, M0, M1, S, tau);
+			res.push(myWindow);
+			return res ;
+			
+		}
+		
+		System.out.println("Unhandled case") ;
+		throw(new Exception("This case is unhandeld right now"));
 	}
 }

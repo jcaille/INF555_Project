@@ -172,6 +172,7 @@ public class SurfaceMesh {
 
 		view.strokeWeight(2); // line width (for edges)
 		view.stroke(20);
+		view.stroke(0, 100);
 		for(Halfedge<Point_3> e: this.polyhedron3D.halfedges) {
 			Point_3 p=e.vertex.getPoint();
 			Point_3 q=e.opposite.vertex.getPoint();
