@@ -1,7 +1,7 @@
 out_file = "/Users/jean/Dropbox/1_CURRENT/INF555/INF555_Project/src/OFF/plane.off"
 
-x = 20 #number of vertices on on edge
-y = 20 #number of vertices on the other edge
+x = 5 #number of vertices on on edge
+y = 5 #number of vertices on the other edge
 
 center = True
 

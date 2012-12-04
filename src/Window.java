@@ -30,6 +30,10 @@ public class Window {
 		this.tau = tau ;
 		this.sigma = 0;
 	}
+	
+	public Window(){
+		
+	}
 
 	public Window(Halfedge<Point_3> h, Point_2 P0 , Point_2 B0, Point_2 B1, Point_2 S, int tau, double sigma){
 		//construct a window on halfedge h where
@@ -45,7 +49,26 @@ public class Window {
 		this.tau = tau ;
 		this.sigma = sigma ;
 	}
+	
+	public double getMinDistanceToSource(){
+		return this.sigma + Math.min(this.d0, this.d1); 
+	}
+	
+	public double getMaxDistanceToSource(){
+		return this.sigma + Math.max(this.d0, this.d1); 
+	}
 
+	public boolean isCompatibleWith(Window w){
+		assert(this.b0 <= this.b1);
+		assert(w.b0 <= w.b1);
+		
+		if(this.b1 < w.b0 || this.b0 > w.b1){
+			return true;
+		}
+		
+		return false ;
+	}
+	
 	public Point_2 getThirdTriangleVertex(double b0, double b1, double d0,
 			double d1, int tau) {
 		// Get the third vertex (x,y) of a triangle whose base side lies on the
@@ -58,9 +81,16 @@ public class Window {
 		assert (b1 - b0 <= d1 + d0);
 		assert (Math.abs(tau) == 1);
 
+		if(b1 == b0){
+		}
 		double x = (d0 * d0 - d1 * d1 + b1 * b1 - b0 * b0) / (2 * (b1 - b0));
-		double y = tau * Math.sqrt(d0 * d0 - (x - b0) * (x - b0));
-
+		double y = 0;
+		if (d0 < x-b0){
+			System.out.println("Huho");
+		} else {
+			y = tau * Math.sqrt(d0 * d0 - (x - b0) * (x - b0));
+		}
+		
 		return new Point_2(x, y);
 	}
 

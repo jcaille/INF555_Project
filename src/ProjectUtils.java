@@ -2,8 +2,14 @@ import Jcg.geometry.Point_2;
 
 
 public class ProjectUtils {
+	
+	static double standardPrecision = 0.00000005;
 
 	public ProjectUtils() {
+	}
+	
+	public static boolean equals(double d1, double d2){
+		return(Math.abs(d1-d2) <= standardPrecision);
 	}
 
 	public static Point_2 getThirdTriangleVertex(double b0, double b1, double d0,

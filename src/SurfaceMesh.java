@@ -22,7 +22,7 @@ public class SurfaceMesh {
 	 */	
 	public SurfaceMesh(MeshViewer view, String filename) {
 		this.view=view;
-
+		
 		// shared vertex representation of the mesh
 		SharedVertexRepresentation sharedVertex=new SharedVertexRepresentation(filename);
 		LoadMesh<Point_3> load3D=new LoadMesh<Point_3>();
@@ -117,7 +117,6 @@ public class SurfaceMesh {
 		}
 
 		this.drawAxis();
-
 		view.beginShape(view.TRIANGLES);
 		for(Face<Point_3> f: this.polyhedron3D.facets) {
 			int scaledColor = (int) (255 * (1 - map.get(f.getEdge().getVertex()) / maxDistance));
