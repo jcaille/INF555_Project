@@ -14,6 +14,10 @@ import Jcg.polyhedron.Vertex;
 public class MeshViewer extends PApplet {
 	
 	HashMap<Vertex<Point_3>, Double> distanceMap ;
+
+	float xValue ;
+	float yValue ;
+	float zValue ;
 	
 	SurfaceMesh mesh;
 	ExactDijkstra dj;
@@ -34,6 +38,10 @@ public class MeshViewer extends PApplet {
 		size(800,600,P3D);
 		ArcBall arcball = new ArcBall(this);
 
+		xValue = 0 ;
+		yValue = 0 ;
+		zValue = 0 ;
+		
 		this.mesh=new SurfaceMesh(this, filename);
 //		dj = new ExactDijkstra(this.mesh.polyhedron3D);
 		eg = new ExactGeodesics(this.mesh.polyhedron3D);
@@ -56,14 +64,16 @@ public class MeshViewer extends PApplet {
 		directionalLight(51, 50, 102, 0, 1, 0);
 		directionalLight(51, 50, 102, 0, 0, 1);
 
-		translate(width/2.f,height/2.f,-1*height/2.f);
+		translate(width/2.f + xValue ,height/2.f + yValue,-1*height/2.f + zValue);
 		scale((float) 1.5) ;
 		this.strokeWeight((float) .3);
 		stroke(150,150,150);
 
+		//this.mesh.drawWithDistanceField(this.distanceMap);
+
 		this.mesh.draw(eg.segments);
 	}
-
+	
 	/**
 	 * For running the PApplet as Java application
 	 */
@@ -72,5 +82,6 @@ public class MeshViewer extends PApplet {
 		pa.setSize(400, 400);
 		PApplet.main(new String[] { "MeshViewer" });
 	}
+	
 
 }
