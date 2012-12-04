@@ -44,7 +44,7 @@ public class ExactGeodesics {
 		windowToPropagate.add(myWindow);
 
 		int i = 0 ;
-		while(!windowToPropagate.isEmpty() && i < 500){
+		while(!windowToPropagate.isEmpty() && i < 4185){
 			i++;
 			Window w = windowToPropagate.poll() ;
 			windowsToDraw.add(w) ;
