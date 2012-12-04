@@ -25,6 +25,8 @@
 
 
 import processing.core.PApplet;
+
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 public class ArcBall {
@@ -32,6 +34,8 @@ public class ArcBall {
   PApplet parent;
   
   float center_x, center_y, center_z, radius;
+  float camera_x, camera_y, camera_z ;
+  
   Vec3 v_down, v_drag;
   Quat q_now, q_down, q_drag;
   Vec3[] axisSet;
@@ -46,11 +50,17 @@ public class ArcBall {
     this.parent = parent;
 
     parent.registerMouseEvent(this);
+    parent.registerKeyEvent(this);
     parent.registerPre(this);
 
     this.center_x = center_x;
     this.center_y = center_y;
     this.center_z = center_z;
+    
+    camera_x = 0 ;
+    camera_y = 0 ;
+    camera_z = 0 ;
+    
     this.radius = radius;
 
     v_down = new Vec3();
@@ -74,6 +84,16 @@ public class ArcBall {
       mousePressed();
     }
   }
+  
+  
+  public void keyEvent(KeyEvent event) {
+	  char key = event.getKeyChar();
+	  int  id = event.getID();
+	  if(id == KeyEvent.KEY_TYPED && key == 'z'){
+		  camera_z -= 40 ;
+	  }
+  }
+  
 
   public void mousePressed() {
     v_down = mouse_to_sphere(parent.mouseX, parent.mouseY);
@@ -87,10 +107,11 @@ public class ArcBall {
   }
 
   public void pre() {
-    parent.translate(center_x, center_y, center_z);
+//	  center_x += 1;
+    parent.translate( camera_x ,  camera_y,  camera_z);
     q_now = Quat.mul(q_drag, q_down);
     applyQuat2Matrix(q_now);
-    parent.translate(-center_x, -center_y, -center_z);
+    parent.translate( -center_x +camera_x, -center_y +camera_y, -center_z + camera_z);
   }
 
   Vec3 mouse_to_sphere(float x, float y) {
