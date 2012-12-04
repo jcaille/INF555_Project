@@ -18,6 +18,7 @@ public class Window {
 	double d0; // Geodesic distance from b0 to the source
 	double d1; // Geodesic distance from b1 to the source
 	int tau; // represents the direction in which the source lies. 1 if source
+	
 	// is in the direction of edge.face, -1 if not.
 
 	public Window(Halfedge<Point_3> edge, double b0, double b1, double d0, double d1, int tau) {
@@ -27,9 +28,10 @@ public class Window {
 		this.d0 = d0 ;
 		this.d1 = d1 ;
 		this.tau = tau ;
+		this.sigma = 0;
 	}
 
-	public Window(Halfedge<Point_3> h, Point_2 P0 , Point_2 B0, Point_2 B1, Point_2 S, int tau){
+	public Window(Halfedge<Point_3> h, Point_2 P0 , Point_2 B0, Point_2 B1, Point_2 S, int tau, double sigma){
 		//construct a window on halfedge h where
 		//P0 is the extremity of h, P0 = h.getVertex().getPoint()
 		//B0 and B1 are points on h, respectively the start and end of the window
@@ -41,10 +43,7 @@ public class Window {
 		this.d0 = (Double) S.distanceFrom(B0) ;
 		this.d1 = (Double) S.distanceFrom(B1) ;
 		this.tau = tau ;
-	}
-
-	public Window() {
-
+		this.sigma = sigma ;
 	}
 
 	public Point_2 getThirdTriangleVertex(double b0, double b1, double d0,
@@ -244,11 +243,11 @@ public class Window {
 			//We add the two full windows 
 			
 			Halfedge<Point_3> h = this.edge.next.opposite ;
-			Window myWindow = new Window(h, P0, P0, P2, S, tau);
+			Window myWindow = new Window(h, P0, P0, P2, S, this.tau, this.sigma);
 			res.push(myWindow) ;
 			
 			h = this.edge.prev.opposite ;
-			myWindow = new Window(h, P2, P2, P1, S, tau);
+			myWindow = new Window(h, P2, P2, P1, S, this.tau, this.sigma);
 			res.push(myWindow) ;
 			
 			return res ;
@@ -257,11 +256,11 @@ public class Window {
 			//We add the two full windows 
 			
 			Halfedge<Point_3> h = this.edge.next.opposite ;
-			Window myWindow = new Window(h, P0, P0, P2, S, tau);
+			Window myWindow = new Window(h, P0, P0, P2, S, this.tau, this.sigma);
 			res.push(myWindow) ;
 			
 			h = this.edge.prev.opposite ;
-			myWindow = new Window(h, P2, P2, P1, S, tau);
+			myWindow = new Window(h, P2, P2, P1, S, this.tau, this.sigma);
 			res.push(myWindow) ;
 			
 			return res ;
@@ -296,18 +295,20 @@ public class Window {
 			//We add three window, two of them having pseudo-sources
 			
 			Halfedge<Point_3> h = this.edge.next.opposite ;
-			Window myWindow = new Window(h, P0, M0, M1, S, tau);
+			Window myWindow = new Window(h, P0, M0, M1, S, tau, sigma);
 			res.push(myWindow);
 			
+			double newSigma = (Double) P1.distanceFrom(S);
+
 			if( (Double) M1.distanceFrom(P2) > standardPrecision ){
-				myWindow = new Window(h, P0, M1, P2, P1, tau);
+				myWindow = new Window(h, P0, M1, P2, P1, tau, newSigma);
 				res.push(myWindow);				
 			} else {
 				System.out.println("We're in a pretty specific subcase of 1");
 			}
 			
 			h = this.edge.prev.opposite ;
-			myWindow = new Window(h, P2, P2, P1, P1, tau);
+			myWindow = new Window(h, P2, P2, P1, P1, tau, newSigma);
 			res.push(myWindow);
 			
 			return res;
@@ -319,11 +320,12 @@ public class Window {
 			//We add three window, two of them having pseudo-sources
 			
 			Halfedge<Point_3> h = this.edge.prev.opposite ;
-			Window myWindow = new Window(h, P2, M2, M3, S, tau);
+			Window myWindow = new Window(h, P2, M2, M3, S, tau, sigma);
 			res.push(myWindow);
 			
+			double newSigma = (Double) S.distanceFrom(P0) ;
 			if ((Double) M2.distanceFrom(P2) > standardPrecision) {
-				myWindow = new Window(h, P2, P2, M2, P0, tau);
+				myWindow = new Window(h, P2, P2, M2, P0, tau, newSigma);
 				res.push(myWindow);
 			} else {
 				System.out.println("We're in a pretty specific subcase of 2");
@@ -331,7 +333,7 @@ public class Window {
 
 			
 			h = this.edge.next.opposite ;
-			myWindow = new Window(h, P0, P0, P2, P0, tau);
+			myWindow = new Window(h, P0, P0, P2, P0, tau, newSigma);
 			res.push(myWindow);
 			
 			return res ;
@@ -341,11 +343,11 @@ public class Window {
 			//We add two windows with the same source
 			
 			Halfedge<Point_3> h = this.edge.next.opposite;
-			Window myWindow = new Window(h, P0, M0, P2, S, tau);
+			Window myWindow = new Window(h, P0, M0, P2, S, tau, this.sigma);
 			res.push(myWindow);
 			
 			h = this.edge.prev.opposite ;
-			myWindow = new Window(h, P2, P2, M3, S, tau);
+			myWindow = new Window(h, P2, P2, M3, S, tau, this.sigma);
 			res.push(myWindow);
 			
 			return res ;
@@ -355,7 +357,7 @@ public class Window {
 			//We add only one window to the P1-P2 edge
 			
 			Halfedge<Point_3> h = this.edge.prev.opposite ;
-			Window myWindow = new Window(h, P2, M2, M3, S, tau);
+			Window myWindow = new Window(h, P2, M2, M3, S, tau, this.sigma);
 			res.push(myWindow);
 			return res;
 		}
@@ -364,7 +366,7 @@ public class Window {
 			//We add only one window on the P0-P2 edge
 			
 			Halfedge<Point_3> h = this.edge.next.opposite ;
-			Window myWindow = new Window(h, P0, M0, M1, S, tau);
+			Window myWindow = new Window(h, P0, M0, M1, S, tau, sigma);
 			res.push(myWindow);
 			return res ;
 			
