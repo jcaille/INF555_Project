@@ -68,8 +68,8 @@ public class MeshViewer extends PApplet {
 
 		//this.mesh.drawWithDistanceField(this.distanceMap);
 
-		this.mesh.draw();
-		//this.mesh.drawWindows(eg.computedWindows);
+		//this.mesh.draw();
+		this.mesh.drawWindowsField(eg.computedWindows);
 	}
 	
 	/**

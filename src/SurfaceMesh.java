@@ -1,6 +1,8 @@
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import javax.media.j3d.Link;
+
 import Jcg.geometry.*;
 import Jcg.polyhedron.*;
 
@@ -148,6 +150,47 @@ public class SurfaceMesh {
 			this.view.stroke(0, 0, 0, 10) ;
 			this.drawSegment(p, q); // draw edge (p,q)
 		}
+		view.strokeWeight(1);
+	}
+	
+	public void drawWindowsField(HashMap<Halfedge<Point_3>, LinkedList<Window>> map){
+		double maxDistance = 0 ;
+		for(Halfedge<Point_3> h : map.keySet()){
+			for( Window w : map.get(h)){
+				maxDistance = w.getMaxDistanceToSource() > maxDistance ? w.getMaxDistanceToSource() : maxDistance ;
+			}
+		}
+
+		this.drawAxis();
+		view.beginShape(view.TRIANGLES);
+		for(Face<Point_3> f: this.polyhedron3D.facets) {
+			Halfedge<Point_3> e=f.getEdge();
+			Point_3 p=e.vertex.getPoint();
+			Point_3 q=e.getNext().vertex.getPoint();
+			Point_3 r=e.getNext().getNext().vertex.getPoint();
+
+			view.noStroke();
+			view.fill(255, 255,255,255); // color of the triangle
+			this.drawTriangle(p, q, r); // draw a triangle face
+		}
+		view.endShape();
+
+		view.strokeWeight(2); // line width (for edges)
+		view.stroke(20);
+		for(Halfedge<Point_3> e: this.polyhedron3D.halfedges) {
+			Point_3 p=e.vertex.getPoint();
+			Point_3 q=e.opposite.vertex.getPoint();
+			this.view.stroke(0, 0, 0, 10) ;
+			this.drawSegment(p, q); // draw edge (p,q)
+		}
+
+		view.strokeWeight(10); // line width (for edges)
+		for(Halfedge<Point_3> h : map.keySet()){
+			for( Window w : map.get(h)){
+				this.drawWindow(w, maxDistance);
+			}
+		}
+		
 		view.strokeWeight(1);
 	}
 
