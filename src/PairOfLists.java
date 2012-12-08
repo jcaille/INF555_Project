@@ -12,8 +12,23 @@ public class PairOfLists {
 	}
 	
 	public PairOfLists(LinkedList<Window> first, LinkedList<Window> secund) {
-		this.first = first;
-		this.secund = secund;
+		this.first = new LinkedList<Window>();
+		this.secund = new LinkedList<Window>();
+		
+		for(Window w:first)
+		{
+			if(!w.isEmpty())
+			{
+				this.first.push(w);
+			}
+		}
+		
+		for(Window w:secund)
+		{
+			if(!w.isEmpty())
+			{
+				this.secund.push(w);
+			}
+		}
 	}
-
 }

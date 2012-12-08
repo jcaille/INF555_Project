@@ -47,6 +47,15 @@ public class SurfaceMesh {
 				(float)q.getY().doubleValue()*s, (float)q.getZ().doubleValue()*s);
 	}
 
+	public void drawWindow(Window w, double maxDistance) {
+		double meanDistance = w.sigma + (w.d0 + w.d1) / 2. ;
+		int scaledColor = (int) (255 * (1 - meanDistance / maxDistance));
+		this.view.stroke(scaledColor, 0, 255-scaledColor, 255) ;
+		Point_3 p = w.getSegment().p;
+		Point_3 q = w.getSegment().q;
+		this.drawSegment(p, q);
+	}
+	
 	/**
 	 * Draw a triangle face
 	 */	
@@ -153,41 +162,7 @@ public class SurfaceMesh {
 		view.translate(-x1, -y1, -z1);
 	}
 
-	public void draw(LinkedList<Segment_3> list) {
-		this.drawAxis();
-
-		view.beginShape(view.TRIANGLES);
-		for(Face<Point_3> f: this.polyhedron3D.facets) {
-			Halfedge<Point_3> e=f.getEdge();
-			Point_3 p=e.vertex.getPoint();
-			Point_3 q=e.getNext().vertex.getPoint();
-			Point_3 r=e.getNext().getNext().vertex.getPoint();
-
-			view.noStroke();
-			view.fill(200,200,200,255); // color of the triangle
-			this.drawTriangle(p, q, r); // draw a triangle face
-		}
-		view.endShape();
-
-		view.strokeWeight(2); // line width (for edges)
-		view.stroke(20);
-		view.stroke(0, 100);
-		for(Halfedge<Point_3> e: this.polyhedron3D.halfedges) {
-			Point_3 p=e.vertex.getPoint();
-			Point_3 q=e.opposite.vertex.getPoint();
-
-			this.drawSegment(p, q); // draw edge (p,q)
-		}
-
-		view.strokeWeight(4); // line width (for geodesics)
-		view.stroke(255,0,0);
-		for(Segment_3 s: list) {
-			this.drawSegment(s.p, s.q); // draw segment
-		}
-
-		view.strokeWeight(1);
-	}
-
+	
 	/**
 	 * Draw the X, Y and Z axis
 	 */

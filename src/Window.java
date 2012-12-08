@@ -21,14 +21,14 @@ public class Window {
 	
 	// is in the direction of edge.face, -1 if not.
 
-	public Window(Halfedge<Point_3> edge, double b0, double b1, double d0, double d1, int tau) {
+	public Window(Halfedge<Point_3> edge, double b0, double b1, double d0, double d1, int tau, double sigma) {
 		this.edge = edge ;
 		this.b0 = b0 ;
 		this.b1 = b1 ;
 		this.d0 = d0 ;
 		this.d1 = d1 ;
 		this.tau = tau ;
-		this.sigma = 0;
+		this.sigma = sigma;
 	}
 	
 	public Window(){
@@ -50,6 +50,26 @@ public class Window {
 		this.sigma = sigma ;
 	}
 	
+	public Window(Window w, double b0, double b1) {
+		this.edge = w.edge ;
+		this.b0 = b0 ;
+		this.b1 = b1 ;
+		this.tau = w.tau ;
+		this.sigma = w.sigma;
+		
+		if(b0 == w.b0){
+			this.d0 = w.d0 ;
+		}else{
+			this.d0 = w.distanceOnEdge(b0) ;
+		}
+		
+		if(b1 == w.b1){
+			this.d1 = w.d1 ;
+		}else{
+			this.d1 = w.distanceOnEdge(b1) ;
+		}
+	}
+	
 	public double getMinDistanceToSource(){
 		return this.sigma + Math.min(this.d0, this.d1); 
 	}
@@ -67,6 +87,15 @@ public class Window {
 		}
 		
 		return false ;
+	}
+	
+	public boolean isEmpty(){
+		return ProjectUtils.equals(this.b0, this.b1) ;
+	}
+	
+	public double distanceOnEdge(double x){
+		Point_2 X = new Point_2(x, 0);
+		return (Double) X.distanceFrom(getSourceInPlane()) + sigma ;
 	}
 	
 	public Point_2 getThirdTriangleVertex(double b0, double b1, double d0,

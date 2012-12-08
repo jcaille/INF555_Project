@@ -90,7 +90,7 @@ public class ArcBall {
 	  char key = event.getKeyChar();
 	  int  id = event.getID();
 	  if(id == KeyEvent.KEY_TYPED && key == 'z'){
-		  camera_z -= 40 ;
+		  //camera_z -= 40 ;
 	  }
   }
   
@@ -108,7 +108,7 @@ public class ArcBall {
 
   public void pre() {
 //	  center_x += 1;
-    parent.translate( camera_x ,  camera_y,  camera_z);
+    parent.translate( center_x ,  center_y,  center_z);
     q_now = Quat.mul(q_drag, q_down);
     applyQuat2Matrix(q_now);
     parent.translate( -center_x +camera_x, -center_y +camera_y, -center_z + camera_z);

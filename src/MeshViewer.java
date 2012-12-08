@@ -43,13 +43,10 @@ public class MeshViewer extends PApplet {
 		zValue = 0 ;
 		
 		this.mesh=new SurfaceMesh(this, filename);
-//		dj = new ExactDijkstra(this.mesh.polyhedron3D);
 		eg = new ExactGeodesics(this.mesh.polyhedron3D);
 		try {
 			eg.compute();
-		
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -71,7 +68,8 @@ public class MeshViewer extends PApplet {
 
 		//this.mesh.drawWithDistanceField(this.distanceMap);
 
-		this.mesh.draw(eg.segments);
+		this.mesh.draw();
+		//this.mesh.drawWindows(eg.computedWindows);
 	}
 	
 	/**
