@@ -51,8 +51,8 @@ public class SurfaceMesh {
 
 	public void drawWindow(Window w, double maxDistance) {
 		double meanDistance = w.sigma + (w.d0 + w.d1) / 2. ;
-		int scaledColor = (int) (255 * (1 - meanDistance / maxDistance));
-		this.view.stroke(scaledColor, 0, 255-scaledColor, 255) ;
+		int scaledColor = (int) (255 * ( meanDistance / maxDistance));
+		this.view.stroke(0, scaledColor, 255 - scaledColor, 255) ;
 		Point_3 p = w.getSegment().p;
 		Point_3 q = w.getSegment().q;
 		this.drawSegment(p, q);
@@ -184,10 +184,14 @@ public class SurfaceMesh {
 			this.drawSegment(p, q); // draw edge (p,q)
 		}
 
-		view.strokeWeight(10); // line width (for edges)
-		for(Halfedge<Point_3> h : map.keySet()){
-			for( Window w : map.get(h)){
-				this.drawWindow(w, maxDistance);
+		view.strokeWeight(3); // line width (for edges)
+		LinkedList<Halfedge<Point_3>> visited = new LinkedList<Halfedge<Point_3>>();
+		for (Halfedge<Point_3> h : map.keySet()){
+			if(true){
+				for( Window w : map.get(h)){
+					this.drawWindow(w, maxDistance);
+				}
+				visited.add(h);
 			}
 		}
 		

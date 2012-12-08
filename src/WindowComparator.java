@@ -11,10 +11,10 @@ public class WindowComparator implements Comparator<Window> {
 	public int compare(Window arg0, Window arg1) {
 		double score0 = arg0.getMinDistanceToSource() ;
 		double score1 = arg1.getMinDistanceToSource() ;
-		if(score0  < score1){
+		if(score0  > score1){
 			return 1 ;
 		} 
-		if(score1 < score0){
+		if(score0 < score1){
 			return -1 ;
 		}
 		return 0;

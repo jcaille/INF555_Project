@@ -175,7 +175,18 @@ public class ExactGeodesics {
 		}
 		windowsToMerge = newWindowsToMerge;
 		
-		LinkedList<Window> existingWindows = this.computedWindows.get(windowsToMerge.get(0).edge);
+		LinkedList<Window> existingWindows = this.computedWindows.get(windowsToMerge.getFirst().edge);
+		
+		if(existingWindows == null){
+			existingWindows = new LinkedList<Window>() ;
+			for( Window w : windowsToMerge ){
+				existingWindows.add(w);
+				this.windowsToPropagate.offer(w);
+			}
+			this.computedWindows.put(windowsToMerge.getFirst().edge, existingWindows);
+			return ;
+		}
+		
 		LinkedList<Window> resultingOldWindows = new LinkedList<Window>() ;
 		LinkedList<Window> newExistingWindows = new LinkedList<Window>();
 		
@@ -222,9 +233,29 @@ public class ExactGeodesics {
 	}
 	
 	public void computeOnePropagation() throws Exception {
+			System.out.print(".");
 			Window w = this.windowsToPropagate.poll() ;
-			this.merge(w.propagate());
-		}
+			LinkedList<Window> resOfPropagation = w.propagate() ;
+			
+			Halfedge<Point_3> e = resOfPropagation.peek().edge;
+			
+			LinkedList<Window> l1 = new LinkedList<Window>(), l2 = new LinkedList<Window>();
+			
+			for(Window window : resOfPropagation)
+			{
+				if(window.edge == e)
+				{
+					l1.push(window);
+				}
+				else
+				{
+					l2.push(window);
+				}
+			}
+			
+			if(!l1.isEmpty()){this.merge(l1);}
+			if(!l2.isEmpty()){this.merge(l2);}
+	}
 	
 	public void getFirstWindow(){
 		Face<Point_3> f = this.polyhedron3D.facets.get(5) ;
@@ -232,8 +263,8 @@ public class ExactGeodesics {
 		Point_3 b = f.getEdge().getOpposite().getVertex().getPoint() ;
 		Point_3 c = f.getEdge().getNext().getVertex().getPoint() ;
 		
-		Point_3 X = Window.barycenter(b, a, 0.55) ;
-		Point_3 Y = Window.barycenter(b, a, .66) ;
+		Point_3 X = Window.barycenter(b, a, 0.) ;
+		Point_3 Y = Window.barycenter(b, a, 1.) ;
 				
 		Point_3 source = Window.barycenter(Window.barycenter(a, b, 0.5), c, 0.5) ;
 		double b0 = (Double) b.distanceFrom(X) ; System.out.println(b0) ;
@@ -250,8 +281,14 @@ public class ExactGeodesics {
 
 	}
 	
+	public void compute(int iteration) throws Exception {
+		for(int i = 0 ; i < iteration ; i++){
+			computeOnePropagation();
+		}
+	}
+	
 	public void compute() throws Exception {
-		for(int i = 0 ; i < 10 ; i++){
+		while(!this.windowsToPropagate.isEmpty()){
 			computeOnePropagation();
 		}
 	}
