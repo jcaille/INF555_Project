@@ -107,7 +107,6 @@ public class ArcBall {
   }
 
   public void pre() {
-//	  center_x += 1;
     parent.translate( center_x ,  center_y,  center_z);
     q_now = Quat.mul(q_drag, q_down);
     applyQuat2Matrix(q_now);
