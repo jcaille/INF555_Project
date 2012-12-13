@@ -12,21 +12,21 @@ import Jcg.polyhedron.Vertex;
  *
  */
 public class MeshViewer extends PApplet {
-	
+
 	HashMap<Vertex<Point_3>, Double> distanceMap ;
 	SurfaceMesh mesh;
 	Game meshGame ;
-	
-//	String filename="OFF/high_genus.off";
-	String filename="OFF/sphere.off";
-//	String filename="OFF/cube.off";
-//	String filename="OFF/torus_33.off";
-//	String filename="OFF/tore.off";
-//	String filename="OFF/tri_round_cube.off";
-//	String filename="OFF/tri_hedra.off";
-//	String filename="OFF/tri_horse.off";
-//	String filename="OFF/tri_triceratops.off";
-//	String filename="OFF/tri_gargoyle.off";
+
+//		String filename="OFF/high_genus.off";
+		String filename="OFF/sphere.off";
+//		String filename="OFF/cube.off";
+//		String filename="OFF/torus_33.off";
+//		String filename="OFF/tore.off";
+//		String filename="OFF/tri_round_cube.off";
+//		String filename="OFF/tri_hedra.off";
+//		String filename="OFF/tri_horse.off";
+//		String filename="OFF/tri_triceratops.off";
+//		String filename="OFF/tri_gargoyle.off";
 
 
 	public void setup() {
@@ -38,22 +38,21 @@ public class MeshViewer extends PApplet {
 
 	public void draw() {
 		background(0);
-
+		translate(width/2.f  ,height/2.f ,-1*height/2.f);
 		scale((float) 1.5) ;
-		this.strokeWeight((float) .3);
-		stroke(150,150,150);
+		this.mesh.drawPolyhedronWithDistanceField(this.meshGame.subdividedPolyhedron, this.meshGame.computedDistanceField);
 	}
-	
+
 	public void keyPressed(){
 		try{
-		  switch(key) {
-
-		  }
+			switch(key) {
+			case('s') : case('S') : this.meshGame.subdivide() ; break ;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * For running the PApplet as Java application
 	 */
@@ -62,6 +61,6 @@ public class MeshViewer extends PApplet {
 		pa.setSize(400, 400);
 		PApplet.main(new String[] { "MeshViewer" });
 	}
-	
+
 
 }

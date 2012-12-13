@@ -153,6 +153,43 @@ public class SurfaceMesh {
 		view.strokeWeight(1);
 	}
 	
+	public void drawPolyhedronWithDistanceField(Polyhedron_3<Point_3> polyhedron, HashMap<Point_3, Double> map){
+		double maxDistance = 0 ;
+		for(Point_3 v : map.keySet()){
+			if(map.get(v) > maxDistance){
+				maxDistance = map.get(v) ;
+			}
+		}
+
+		this.drawAxis();
+		view.beginShape(view.TRIANGLES);
+		for(Face<Point_3> f: polyhedron.facets) {
+			Halfedge<Point_3> e=f.getEdge();
+			Point_3 p=e.vertex.getPoint();
+			Point_3 q=e.getNext().vertex.getPoint();
+			Point_3 r=e.getNext().getNext().vertex.getPoint();
+			
+			double meanDistance = (map.get(p) + map.get(q) + map.get(r)) / 3.0 ;
+			int scaledColor = (int) (255 * (1 - meanDistance / maxDistance));
+
+
+			view.noStroke();
+			view.fill(255-scaledColor, 255-scaledColor,scaledColor,255); // color of the triangle
+			this.drawTriangle(p, q, r); // draw a triangle face
+		}
+		view.endShape();
+
+		view.strokeWeight(2); // line width (for edges)
+		view.stroke(20);
+		for(Halfedge<Point_3> e: polyhedron.halfedges) {
+			Point_3 p=e.vertex.getPoint();
+			Point_3 q=e.opposite.vertex.getPoint();
+			this.view.stroke(0, 0, 0, 10) ;
+			this.drawSegment(p, q); // draw edge (p,q)
+		}
+		view.strokeWeight(1);
+	}
+	
 	public void drawWindowsField(HashMap<Halfedge<Point_3>, LinkedList<Window>> map){
 		double maxDistance = 0 ;
 		for(Halfedge<Point_3> h : map.keySet()){

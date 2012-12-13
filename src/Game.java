@@ -31,12 +31,12 @@ public class Game {
 		for(Face<Point_3> f : this.referencePolyhedron.facets){
 			this.correspondingReferenceFace.put(f, f);
 		}
-		
 		updateDistanceField();
 	}
 	
 	public void subdivide() {
 		this.subdivider.subdivide() ;
+		updateDistanceField() ;
 	}
 	
 	public void updateDistanceField() {

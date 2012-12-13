@@ -73,15 +73,19 @@ public class GeodesicDistance {
 			Double distance = -1.;
 			for(Halfedge<Point_3> n : neighbouringEdges)
 			{
-				for(Window w : df.computedWindows.get(n))
-				{
-					if(w.b0 == 0 && ((distance < 0) || (w.d0 + w.sigma < distance) ))
-						distance = w.d0 + w.sigma;
+				if(df.computedWindows.containsKey(n)){
+					for(Window w : df.computedWindows.get(n))
+					{
+						if(w.b0 == 0 && ((distance < 0) || (w.d0 + w.sigma < distance) ))
+							distance = w.d0 + w.sigma;
+					}
 				}
-				for(Window w : df.computedWindows.get(n.opposite))
-				{
-					if(ProjectUtils.equals(w.b1, Window.edgeLength(w.edge)) && ((distance < 0) || (w.d1 + w.sigma < distance) ))
-						distance = w.d1 + w.sigma;
+				if(df.computedWindows.containsKey(n.opposite)){
+					for(Window w : df.computedWindows.get(n.opposite))
+					{
+						if(ProjectUtils.equals(w.b1, Window.edgeLength(w.edge)) && ((distance < 0) || (w.d1 + w.sigma < distance) ))
+							distance = w.d1 + w.sigma;
+					}
 				}
 			}
 			return(distance);
@@ -92,7 +96,9 @@ public class GeodesicDistance {
 		
 		for(Halfedge<Point_3> n : neighbouringEdges)
 		{
-			closeWindows.addAll(df.computedWindows.get(n));
+			if(df.computedWindows.containsKey(n)){
+				closeWindows.addAll(df.computedWindows.get(n));
+			}
 		}
 		
 		Double distance = -1.;
