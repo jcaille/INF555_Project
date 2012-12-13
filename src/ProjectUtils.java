@@ -17,6 +17,14 @@ public class ProjectUtils {
 		return(Math.abs(d1-d2) <= standardPrecision);
 	}
 	
+	protected static boolean sumMatch(Point_3 A, Point_3 B, Point_3 M){
+		//We do check if one of them is null, returning false in this case
+		if( A == null || B == null || M == null){
+			return false ;
+		}
+		return Math.abs((Double) A.distanceFrom(B) - (Double) A.distanceFrom(M) - (Double) M.distanceFrom(B)) < standardPrecision ;
+	}
+	
 	public static boolean isSameFace(Face<Point_3> f1, Face<Point_3> f2)
 	{
 		LinkedList<Point_3> l1 = getVertices(f1), l2 = getVertices(f2);

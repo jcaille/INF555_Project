@@ -11,7 +11,6 @@ import Jcg.polyhedron.*;
 public class DistanceField {
 	
 	public Polyhedron_3<Point_3> polyhedron3D;
-
 	
 	public HashMap<Halfedge<Point_3>, LinkedList<Window>> computedWindows ;
 	public PriorityQueue<Window> windowsToPropagate ;
@@ -46,8 +45,8 @@ public class DistanceField {
 		Point_3 source = ProjectUtils.barycenter(ProjectUtils.barycenter(a, b, 0.5), c, 0.5) ;
 		this.source = source ;
 		
-		double b0 = (Double) b.distanceFrom(X) ; System.out.println(b0) ;
-		double b1 = (Double) b.distanceFrom(Y) ; System.out.println(b1) ;
+		double b0 = (Double) b.distanceFrom(X) ;
+		double b1 = (Double) b.distanceFrom(Y) ;
 		double d0 = (Double) source.distanceFrom(X) ;
 		double d1 = (Double) source.distanceFrom(Y) ;
 		

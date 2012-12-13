@@ -3,6 +3,8 @@ import java.util.HashMap;
 import processing.core.*;
 
 import Jcg.geometry.*;
+import Jcg.polyhedron.Face;
+import Jcg.polyhedron.Halfedge;
 import Jcg.polyhedron.Vertex;
 
 /**
@@ -18,7 +20,7 @@ public class MeshViewer extends PApplet {
 	Game meshGame ;
 
 //		String filename="OFF/high_genus.off";
-		String filename="OFF/sphere.off";
+//		String filename="OFF/sphere.off";
 //		String filename="OFF/cube.off";
 //		String filename="OFF/torus_33.off";
 //		String filename="OFF/tore.off";
@@ -26,7 +28,7 @@ public class MeshViewer extends PApplet {
 //		String filename="OFF/tri_hedra.off";
 //		String filename="OFF/tri_horse.off";
 //		String filename="OFF/tri_triceratops.off";
-//		String filename="OFF/tri_gargoyle.off";
+		String filename="OFF/tri_gargoyle.off";
 
 
 	public void setup() {
@@ -35,6 +37,17 @@ public class MeshViewer extends PApplet {
 		this.mesh=new SurfaceMesh(this, filename);
 		this.meshBis=new SurfaceMesh(this, filename);
 		this.meshGame = new Game(this.mesh.polyhedron3D,this.meshBis.polyhedron3D, this.mesh.polyhedron3D.facets.get(1));
+		
+		Face<Point_3> f = this.mesh.polyhedron3D.facets.get(3) ;
+		Halfedge<Point_3> e = f.getEdge() ;
+		
+		Point_3 a = e.getVertex().getPoint();
+		Point_3 b = e.getOpposite().getVertex().getPoint() ;
+		Point_3 c = ProjectUtils.barycenter(a, b, 0.00001);
+		
+		System.out.println(this.meshGame.geodesicDistance.distanceToSource(a, f));
+		System.out.println(this.meshGame.geodesicDistance.distanceToSource(b, f));
+		System.out.println(this.meshGame.geodesicDistance.distanceToSource(c, f));
 	}
 
 	public void draw() {

@@ -30,17 +30,16 @@ public class Game {
 		
 		for(Face<Point_3> f : this.subdividedPolyhedron.facets){
 			Face<Point_3> originalFace = null;
-			for(Face<Point_3> of : this.referencePolyhedron.facets){
-				
+			for(Face<Point_3> of : this.referencePolyhedron.facets){	
 				if (ProjectUtils.isSameFace(f,of))
 				{
 					originalFace = of;
 					break;
 				}
 			}
-			
 			this.correspondingReferenceFace.put(f, originalFace);
 		}
+		
 		updateDistanceField();
 	}
 	
@@ -51,7 +50,7 @@ public class Game {
 	
 	public void updateDistanceField() {
 		for(Vertex<Point_3> v : this.subdividedPolyhedron.vertices){
-			Face<Point_3> oldFace = this.correspondingReferenceFace.get(v.getHalfedge().getFace());
+			Face<Point_3> oldFace = this.correspondingReferenceFace.get(v.getHalfedge().getOpposite().getFace());
 			computedDistanceField.put(v.getPoint(), geodesicDistance.distanceToSource(v.getPoint(), oldFace));
 		}
 	}

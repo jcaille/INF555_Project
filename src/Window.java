@@ -128,6 +128,16 @@ public class Window {
 		return Math.abs((Double) A.distanceFrom(B) - (Double) A.distanceFrom(M) - (Double) M.distanceFrom(B)) < precision ;
 	}
 
+	public boolean containsPoint(Point_3 P){
+		double dp = (Double) P.distanceFrom(this.edge.vertex.getPoint());
+		return (b0 <= dp && dp <= b1) ;
+	}
+	
+	public double distanceOfPointToSource(Point_3 P){
+		double dp = (Double) P.distanceFrom(this.edge.vertex.getPoint());
+		return distanceOnEdge(dp);
+	}
+	
 	public Segment_3 getSegment(){
 		Point_3 firstPoint = ProjectUtils.barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b0/edgeLength(this.edge)) ;
 		Point_3 secondPoint = ProjectUtils.barycenter(this.edge.vertex.getPoint(), this.edge.opposite.vertex.getPoint(), b1/edgeLength(this.edge)) ;

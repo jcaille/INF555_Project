@@ -45,32 +45,30 @@ public class GeodesicDistance {
 		LinkedList<Halfedge<Point_3>> neighbouringEdges = new LinkedList<Halfedge<Point_3>>();
 		LinkedList<Window> closeWindows = new LinkedList<Window>();
 
-		//Is P a vertex?
-		Halfedge<Point_3> h = f.getEdge(), next=h.getNext(), last = null;
-
-		neighbouringEdges.push(h);
+		//a, b and c are the three edges of our face ;
+		Halfedge<Point_3> a = f.getEdge() ;
+		Halfedge<Point_3> b = a.next ;
+		Halfedge<Point_3> c = b.next ;
+		
+		boolean pIsVertex = (a.vertex.getPoint().equals(P)) || (b.getVertex().getPoint().equals(P)) || (c.getVertex().getPoint().equals(P));
+		boolean pIsOnA = ProjectUtils.sumMatch(a.getVertex().getPoint(), a.getOpposite().getVertex().getPoint(), P);
+		boolean pIsOnB = ProjectUtils.sumMatch(b.getVertex().getPoint(), b.getOpposite().getVertex().getPoint(), P);
+		boolean pIsOnC = ProjectUtils.sumMatch(c.getVertex().getPoint(), c.getOpposite().getVertex().getPoint(), P);
 
 		
-		while(next != h)
+		//Is P a vertex?
+
+		if(pIsVertex)	//if P is a vertex, we directly get the distance
 		{
-			if(next.getVertex().getPoint().equals(P))
-			{
-				last = next;
-				break;
+			Halfedge<Point_3> h = null , next ;
+			if(a.getVertex().getPoint().equals(P)){
+				h = a ;
+			} else if (b.getVertex().getPoint().equals(P)){
+				h = b ;
+			} else if (c.getVertex().getPoint().equals(P)){
+				h = c ;
 			}
-			neighbouringEdges.push(next);
-			next = next.getNext();
-		}
-
-		if(next.getVertex().getPoint().equals(P))
-		{
-			last = next;
-		}
-
-		if(last != null)	//if P is a vertex, we directly get the distance
-		{
-			//We determine the halfedges pointing to P
-			h = last;
+			
 			neighbouringEdges.push(h);
 
 			next = h.getNext().getOpposite();
@@ -104,10 +102,42 @@ public class GeodesicDistance {
 			return(distance);
 		}
 		
+		if(pIsOnA || pIsOnB || pIsOnC){
+			System.out.println("P is on an edge");
+			Halfedge<Point_3> edge = null ;
+			if(pIsOnA){ edge = a; } 
+			if(pIsOnB){ edge = b; } 
+			if(pIsOnC){ edge = c; } 
+			
+			double distance = -1 ;
+			if(df.computedWindows.containsKey(edge)){
+				for(Window w : df.computedWindows.get(edge)){
+					if(w.containsPoint(P)){
+						if(w.distanceOfPointToSource(P) < distance || distance < 0){
+							distance = w.distanceOfPointToSource(P);
+						}
+					}
+				}
+			}
+			
+			if(df.computedWindows.containsKey(edge.opposite)){
+				for(Window w : df.computedWindows.get(edge.opposite)){
+					if(w.containsPoint(P)){
+						if(w.distanceOfPointToSource(P) < distance || distance < 0){
+							distance = w.distanceOfPointToSource(P);
+						}
+					}
+				}
+			}
+			
+			return distance ;
+		}
+		
 		//Otherwise, we consider all windows on the neighbouring edges,
 		//and we minimise the distance from the source through them
-		
 		//If the point is on an edge, we will add the edges of the opposite face as well
+		
+		
 		LinkedList<Halfedge<Point_3>> newNeighbouringEdges = new LinkedList<Halfedge<Point_3>>();
 		for(Halfedge<Point_3> n : neighbouringEdges)
 		{
