@@ -20,7 +20,6 @@ public class LoopSubdivision extends MeshSubdivision {
 
 	@Override
 	public void subdivide() {
-		HashMap<Vertex<Point_3>, Point_3> newLocations = this.computeNewVertexLocation();
 		for(Vertex<Point_3> v : this.polyhedron3D.vertices){
 			v.tag = 1 ; // Vertex is not original
 		}
@@ -32,10 +31,6 @@ public class LoopSubdivision extends MeshSubdivision {
 		for(Face<Point_3> f : originalFacets){
 			this.subdivideFace(f);
 		}
-		
-		for(Vertex<Point_3> v : newLocations.keySet()){
-			v.setPoint(newLocations.get(v));
-		}
 	}
 
 	public HashMap<Halfedge<Point_3>, Point_3> computeEdgePoints(){
@@ -44,10 +39,8 @@ public class LoopSubdivision extends MeshSubdivision {
 			if(!res.containsKey(h.getOpposite()) && !res.containsKey(h)){
 				Point_3 v0 = h.getVertex().getPoint() ;
 				Point_3 v1 = h.getOpposite().getVertex().getPoint() ;
-				Point_3 v2 = h.getNext().getVertex().getPoint();
-				Point_3 v3 = h.getOpposite().getNext().getVertex().getPoint();
 				Point_3 u = new Point_3() ;
-				u.barycenter(new Point_3[] {v0,v0,v0, v1,v1, v1, v2, v3});
+				u.barycenter(new Point_3[] {v0,v1});
 				res.put(h, u);
 			}
 		}
@@ -85,47 +78,6 @@ public class LoopSubdivision extends MeshSubdivision {
 		this.referenceFaces.put(e1.opposite.getFace(), referenceFace);
 		this.referenceFaces.put(e3.opposite.getFace(), referenceFace);
 		this.referenceFaces.put(e5.opposite.getFace(), referenceFace);
-	}
-	
-	public HashMap<Vertex<Point_3>, Point_3> computeNewVertexLocation(){
-		HashMap<Vertex<Point_3>, Point_3> res = new HashMap<Vertex<Point_3>, Point_3>() ;
-		
-		for(Vertex<Point_3> v : this.polyhedron3D.vertices){
-			ArrayList<Point_3> neighbours = new ArrayList<Point_3>() ;
-			Halfedge<Point_3> h = v.getHalfedge().getOpposite() ;
-			do{
-				neighbours.add(h.getVertex().getPoint());
-				h = h.getOpposite().getNext() ;
-			} while  (h != v.getHalfedge().getOpposite()) ;
-			
-			int degree = neighbours.size() ;
-			double alpha = getAlpha(degree) ;
-			
-			Point_3[] neighboursArray = new Point_3[degree+1] ;
-			Double[] coefficients = new Double[degree+1] ;
-			neighboursArray[0] = v.getPoint() ;
-			coefficients[0] = (1-alpha*degree) ;
-			
-			for(int i=1 ; i<degree+1 ; i++){
-				neighboursArray[i] = neighbours.get(i-1) ;
-				coefficients[i] = alpha ;
-			}
-			
-			Point_3 newPoint = new Point_3() ;
-			newPoint = Point_3.linearCombination(neighboursArray, coefficients);
-			res.put(v, newPoint) ;
-		}
-		
-		return res ;
-	}
-	
-	public double getAlpha(int n){
-		assert(n>2) ;
-		if(n == 3){
-			return 3./16. ;
-		} else {
-			return 3./(8.*n) ;
-		}
 	}
 	
 }
