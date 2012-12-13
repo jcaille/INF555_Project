@@ -51,10 +51,8 @@ public class Game {
 	
 	public void updateDistanceField() {
 		for(Vertex<Point_3> v : this.subdividedPolyhedron.vertices){
-			if(!computedDistanceField.containsKey(v.getPoint())){
-				Face<Point_3> oldFace = this.correspondingReferenceFace.get(v.getHalfedge().getFace());
-				computedDistanceField.put(v.getPoint(), geodesicDistance.distanceToSource(v.getPoint(), oldFace));
-			}
+			Face<Point_3> oldFace = this.correspondingReferenceFace.get(v.getHalfedge().getFace());
+			computedDistanceField.put(v.getPoint(), geodesicDistance.distanceToSource(v.getPoint(), oldFace));
 		}
 	}
 
