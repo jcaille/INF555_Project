@@ -40,7 +40,7 @@ public class GeodesicDistance {
 		this.source = df.source;
 		this.sourceFace = sourceFace;
 	}
-
+	
 	public Double distanceToSource (Point_3 P, Face<Point_3> f){
 		LinkedList<Halfedge<Point_3>> neighbouringEdges = new LinkedList<Halfedge<Point_3>>();
 		LinkedList<Window> closeWindows = new LinkedList<Window>();
@@ -104,8 +104,37 @@ public class GeodesicDistance {
 			return(distance);
 		}
 		
-		//Otherwise, we consider all windows on the neighbouring edges, and we minimise the distance
-		//from the source through them
+		//Otherwise, we consider all windows on the neighbouring edges,
+		//and we minimise the distance from the source through them
+		
+		//If the point is on an edge, we will add the edges of the opposite face as well
+		LinkedList<Halfedge<Point_3>> newNeighbouringEdges = new LinkedList<Halfedge<Point_3>>();
+		for(Halfedge<Point_3> n : neighbouringEdges)
+		{
+			newNeighbouringEdges.push(n);
+			
+			Point_3 P0 = n.getVertex().getPoint(), P1 = n.getOpposite().getVertex().getPoint();
+			Point_3 P0P1 = new Point_3(P1.x-P0.x, P1.y-P0.y, P1.z-P0.z);
+			Point_3 P0P = new Point_3(P.x-P0.x, P.y-P0.y, P.z-P0.z);
+			Point_3 vecProduct = new Point_3(P0P.y*P0P1.z-P0P.z*P0P1.y, P0P.z*P0P1.x-P0P.x*P0P1.z, P0P.x*P0P1.y-P0P.y*P0P1.x);
+			
+			double distanceEdgeToP = Math.sqrt((vecProduct.x*vecProduct.x+vecProduct.y*vecProduct.y+vecProduct.z*vecProduct.z)/(P0P1.x*P0P1.x+P0P1.y*P0P1.y+P0P1.z*P0P1.z));
+			
+			if(ProjectUtils.equals(distanceEdgeToP,0))
+			{
+				Halfedge<Point_3> nOpposite = n.getOpposite(), nextEdge = nOpposite.getNext();
+				newNeighbouringEdges.push(nOpposite);
+				
+				while(nextEdge != nOpposite)
+				{
+					newNeighbouringEdges.push(nextEdge);
+					nextEdge = nextEdge.getNext();
+				}
+			}
+		}
+		neighbouringEdges = newNeighbouringEdges;
+		
+		//Then we determine all windows on these edges
 		
 		for(Halfedge<Point_3> n : neighbouringEdges)
 		{
@@ -114,11 +143,13 @@ public class GeodesicDistance {
 			}
 		}
 		
+		//And we compute the shortest distance to the source through them
+		
 		Double distance = -1.;
 		
 		for(Window w : closeWindows)
 		{
-			//We want to compute the shortest distance to the source through the window
+			//We want to compute the shortest distance to the source through one of the windows
 			double minThroughWindow = 0;
 			
 			//We start by transforming P into a 2D point in the plane define by P and the edge
