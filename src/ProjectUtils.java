@@ -1,5 +1,9 @@
+import java.util.LinkedList;
+
 import Jcg.geometry.Point_2;
 import Jcg.geometry.Point_3;
+import Jcg.polyhedron.Face;
+import Jcg.polyhedron.Halfedge;
 
 
 public class ProjectUtils {
@@ -11,6 +15,50 @@ public class ProjectUtils {
 	
 	public static boolean equals(double d1, double d2){
 		return(Math.abs(d1-d2) <= standardPrecision);
+	}
+	
+	public static boolean isSameFace(Face<Point_3> f1, Face<Point_3> f2)
+	{
+		LinkedList<Point_3> l1 = getVertices(f1), l2 = getVertices(f2);
+		
+		if(l1.size() != l2.size())
+		{
+			return(false);
+		}
+		
+		for(Point_3 P1 : l1)
+		{
+			boolean matchFound = false;
+			for(Point_3 P2 : l2)
+			{
+				if(equals(P1.distanceFrom(P2).doubleValue(),0))
+				{
+					matchFound = true;
+					break;
+				}
+			}
+			
+			if(!matchFound)
+			{
+				return(false);
+			}
+		}
+		return(true);
+	}
+	
+	public static LinkedList<Point_3> getVertices(Face<Point_3> f)
+	{
+		LinkedList<Point_3> result = new LinkedList<Point_3>();
+		Halfedge<Point_3> h = f.getEdge(), next = h.getNext();
+		result.push(h.getVertex().getPoint());
+		
+		while(next != h)
+		{
+			result.push(next.getVertex().getPoint());
+			next = next.getNext();
+		}
+		
+		return(result);
 	}
 
 	public static Point_2 getThirdTriangleVertex(double b0, double b1, double d0,

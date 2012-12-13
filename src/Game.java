@@ -18,9 +18,9 @@ public class Game {
 	HashMap<Point_3, Double> computedDistanceField ;
 	HashMap<Face<Point_3>, Face<Point_3>> correspondingReferenceFace ;
 	
-	public Game(Polyhedron_3<Point_3> polyhedron3D, Face<Point_3> sourceFace) {
+	public Game(Polyhedron_3<Point_3> polyhedron3D, Polyhedron_3<Point_3> polyhedron3DBis, Face<Point_3> sourceFace) {
 		this.referencePolyhedron = polyhedron3D ;
-		this.subdividedPolyhedron = polyhedron3D ;
+		this.subdividedPolyhedron = polyhedron3DBis ;
 		this.sourceFace = sourceFace ;
 		
 		this.correspondingReferenceFace = new HashMap<Face<Point_3>, Face<Point_3>>() ;
@@ -28,8 +28,18 @@ public class Game {
 		this.geodesicDistance = new GeodesicDistance(referencePolyhedron, sourceFace) ;
 		this.subdivider = new LoopSubdivision(subdividedPolyhedron, correspondingReferenceFace);
 		
-		for(Face<Point_3> f : this.referencePolyhedron.facets){
-			this.correspondingReferenceFace.put(f, f);
+		for(Face<Point_3> f : this.subdividedPolyhedron.facets){
+			Face<Point_3> originalFace = null;
+			for(Face<Point_3> of : this.referencePolyhedron.facets){
+				
+				if (ProjectUtils.isSameFace(f,of))
+				{
+					originalFace = of;
+					break;
+				}
+			}
+			
+			this.correspondingReferenceFace.put(f, originalFace);
 		}
 		updateDistanceField();
 	}

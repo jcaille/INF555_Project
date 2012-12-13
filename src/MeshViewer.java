@@ -14,7 +14,7 @@ import Jcg.polyhedron.Vertex;
 public class MeshViewer extends PApplet {
 
 	HashMap<Vertex<Point_3>, Double> distanceMap ;
-	SurfaceMesh mesh;
+	SurfaceMesh mesh, meshBis;
 	Game meshGame ;
 
 		String filename="OFF/high_genus.off";
@@ -33,7 +33,8 @@ public class MeshViewer extends PApplet {
 		size(800,600,P3D);
 		ArcBall arcball = new ArcBall(this);
 		this.mesh=new SurfaceMesh(this, filename);
-		this.meshGame = new Game(this.mesh.polyhedron3D, this.mesh.polyhedron3D.facets.get(1));
+		this.meshBis=new SurfaceMesh(this, filename);
+		this.meshGame = new Game(this.mesh.polyhedron3D,this.meshBis.polyhedron3D, this.mesh.polyhedron3D.facets.get(1));
 	}
 
 	public void draw() {
@@ -41,6 +42,7 @@ public class MeshViewer extends PApplet {
 		translate(width/2.f  ,height/2.f ,-1*height/2.f);
 		scale((float) 1.5) ;
 		this.mesh.drawPolyhedronWithDistanceField(this.meshGame.subdividedPolyhedron, this.meshGame.computedDistanceField);
+		this.mesh.drawSegments(this.meshGame.geodesicDistance.segments);
 	}
 
 	public void keyPressed(){

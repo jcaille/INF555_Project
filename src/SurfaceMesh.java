@@ -48,6 +48,20 @@ public class SurfaceMesh {
 				(float)p.getZ().doubleValue()*s, (float)q.getX().doubleValue()*s, 
 				(float)q.getY().doubleValue()*s, (float)q.getZ().doubleValue()*s);
 	}
+	
+	public void drawSegments(LinkedList<Segment_3> list) {
+		float s=(float)this.scaleFactor;
+		this.view.stroke(255,0,0, 255) ;
+		this.view.strokeWeight(5);
+		for(Segment_3 seg : list)
+		{
+			this.view.line(	(float)seg.p.getX().doubleValue()*s, (float)seg.p.getY().doubleValue()*s, 
+					(float)seg.p.getZ().doubleValue()*s, (float)seg.q.getX().doubleValue()*s, 
+					(float)seg.q.getY().doubleValue()*s, (float)seg.q.getZ().doubleValue()*s);
+		}
+		this.view.stroke(0) ;
+		this.view.strokeWeight(1);
+	}
 
 	public void drawWindow(Window w, double maxDistance) {
 		double meanDistance = w.sigma + (w.d0 + w.d1) / 2. ;

@@ -3,6 +3,7 @@ import java.util.LinkedList;
 
 import Jcg.geometry.Point_2;
 import Jcg.geometry.Point_3;
+import Jcg.geometry.Segment_3;
 import Jcg.polyhedron.Face;
 import Jcg.polyhedron.Halfedge;
 import Jcg.polyhedron.Polyhedron_3;
@@ -15,6 +16,7 @@ public class GeodesicDistance {
 	public DistanceField df;
 	Point_3 source;
 	Face<Point_3> sourceFace;
+	public LinkedList<Segment_3> segments;
 
 	public GeodesicDistance(Polyhedron_3<Point_3> polyhedron3D, Face<Point_3> sourceFace) {
 		this.polyhedron3D=polyhedron3D;
@@ -23,6 +25,16 @@ public class GeodesicDistance {
 			df.compute();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		
+		segments = new LinkedList<Segment_3>();
+		
+		for(Halfedge<Point_3> h:this.polyhedron3D.halfedges)
+		{
+			if(!df.computedWindows.containsKey(h))
+			{
+				segments.add(new Segment_3(h.getVertex().getPoint(), h.getOpposite().getVertex().getPoint()));
+			}
 		}
 		
 		this.source = df.source;
@@ -38,6 +50,7 @@ public class GeodesicDistance {
 
 		neighbouringEdges.push(h);
 
+		
 		while(next != h)
 		{
 			if(next.getVertex().getPoint().equals(P))
@@ -68,7 +81,6 @@ public class GeodesicDistance {
 				next = next.getNext().getOpposite();
 			}
 			
-			
 			//We use them to get the distance
 			Double distance = -1.;
 			for(Halfedge<Point_3> n : neighbouringEdges)
@@ -80,6 +92,7 @@ public class GeodesicDistance {
 							distance = w.d0 + w.sigma;
 					}
 				}
+			
 				if(df.computedWindows.containsKey(n.opposite)){
 					for(Window w : df.computedWindows.get(n.opposite))
 					{
@@ -221,24 +234,30 @@ public class GeodesicDistance {
 			Halfedge<Point_3> oppositeEdge = null;
 			for(Halfedge<Point_3> n : neighbouringEdges)
 			{
-				for(Window w : df.computedWindows.get(n))
-				{
-					if(w.b0 == 0 && w.d0 != 0 && ((distance < 0) || (w.d0 + w.sigma < distance) ))
+				if(df.computedWindows.containsKey(n.opposite)){
+					for(Window w : df.computedWindows.get(n))
 					{
-						distance = w.d0 + w.sigma;
-						bestWindow = w;
-						oppositeEdge = w.edge.getOpposite().getNext();
+						if(w.b0 == 0 && w.d0 != 0 && ((distance < 0) || (w.d0 + w.sigma < distance) ))
+						{
+							distance = w.d0 + w.sigma;
+							bestWindow = w;
+							oppositeEdge = w.edge.getOpposite().getNext();
+						}
 					}
 				}
-				for(Window w : df.computedWindows.get(n.opposite))
-				{
-					if(ProjectUtils.equals(w.b1, Window.edgeLength(w.edge)) && w.d1 != 0 && ((distance < 0) || (w.d1 + w.sigma < distance) ))
+				
+				if(df.computedWindows.containsKey(n.opposite)){
+					for(Window w : df.computedWindows.get(n.opposite))
 					{
-						distance = w.d1 + w.sigma;
-						bestWindow = w;
-						oppositeEdge = w.edge.getOpposite().getNext().getNext();
+						if(ProjectUtils.equals(w.b1, Window.edgeLength(w.edge)) && w.d1 != 0 && ((distance < 0) || (w.d1 + w.sigma < distance) ))
+						{
+							distance = w.d1 + w.sigma;
+							bestWindow = w;
+							oppositeEdge = w.edge.getOpposite().getNext().getNext();
+						}
 					}
 				}
+				
 			}
 			
 			//We compute the position of P in 2D, relatively to the opposite edge
@@ -259,7 +278,9 @@ public class GeodesicDistance {
 		
 		for(Halfedge<Point_3> n : neighbouringEdges)
 		{
-			closeWindows.addAll(df.computedWindows.get(n));
+			if(df.computedWindows.containsKey(n)){
+				closeWindows.addAll(df.computedWindows.get(n));
+			}
 		}
 		
 		Double distance = -1.;
