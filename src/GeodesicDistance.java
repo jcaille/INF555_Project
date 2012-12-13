@@ -12,20 +12,20 @@ import Jcg.polyhedron.Vertex;
 public class GeodesicDistance {
 
 	public Polyhedron_3<Point_3> polyhedron3D;
-	public ExactGeodesics eg;
+	public DistanceField df;
 	Point_3 source;
 	Face<Point_3> sourceFace;
 
-	public GeodesicDistance(Polyhedron_3<Point_3> polyhedron3D, Point_3 source, Face<Point_3> sourceFace) {
+	public GeodesicDistance(Polyhedron_3<Point_3> polyhedron3D, Face<Point_3> sourceFace) {
 		this.polyhedron3D=polyhedron3D;
-		eg = new ExactGeodesics(polyhedron3D);
+		df = new DistanceField(polyhedron3D, sourceFace);
 		try {
-			eg.compute();
+			df.compute();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		this.source = source;
+		this.source = df.source;
 		this.sourceFace = sourceFace;
 	}
 
@@ -73,12 +73,12 @@ public class GeodesicDistance {
 			Double distance = -1.;
 			for(Halfedge<Point_3> n : neighbouringEdges)
 			{
-				for(Window w : eg.computedWindows.get(n))
+				for(Window w : df.computedWindows.get(n))
 				{
 					if(w.b0 == 0 && ((distance < 0) || (w.d0 + w.sigma < distance) ))
 						distance = w.d0 + w.sigma;
 				}
-				for(Window w : eg.computedWindows.get(n.opposite))
+				for(Window w : df.computedWindows.get(n.opposite))
 				{
 					if(ProjectUtils.equals(w.b1, Window.edgeLength(w.edge)) && ((distance < 0) || (w.d1 + w.sigma < distance) ))
 						distance = w.d1 + w.sigma;
@@ -92,7 +92,7 @@ public class GeodesicDistance {
 		
 		for(Halfedge<Point_3> n : neighbouringEdges)
 		{
-			closeWindows.addAll(eg.computedWindows.get(n));
+			closeWindows.addAll(df.computedWindows.get(n));
 		}
 		
 		Double distance = -1.;
@@ -215,7 +215,7 @@ public class GeodesicDistance {
 			Halfedge<Point_3> oppositeEdge = null;
 			for(Halfedge<Point_3> n : neighbouringEdges)
 			{
-				for(Window w : eg.computedWindows.get(n))
+				for(Window w : df.computedWindows.get(n))
 				{
 					if(w.b0 == 0 && w.d0 != 0 && ((distance < 0) || (w.d0 + w.sigma < distance) ))
 					{
@@ -224,7 +224,7 @@ public class GeodesicDistance {
 						oppositeEdge = w.edge.getOpposite().getNext();
 					}
 				}
-				for(Window w : eg.computedWindows.get(n.opposite))
+				for(Window w : df.computedWindows.get(n.opposite))
 				{
 					if(ProjectUtils.equals(w.b1, Window.edgeLength(w.edge)) && w.d1 != 0 && ((distance < 0) || (w.d1 + w.sigma < distance) ))
 					{
@@ -236,11 +236,11 @@ public class GeodesicDistance {
 			}
 			
 			//We compute the position of P in 2D, relatively to the opposite edge
-			Point_2 P_2D = bestWindow.getThirdTriangleVertex(0, Window.edgeLength(oppositeEdge), Window.edgeLength(oppositeEdge.getNext()), Window.edgeLength(oppositeEdge.getPrev()), 1);
+			Point_2 P_2D = ProjectUtils.getThirdTriangleVertex(0, Window.edgeLength(oppositeEdge), Window.edgeLength(oppositeEdge.getNext()), Window.edgeLength(oppositeEdge.getPrev()), 1);
 			//We use it to determine in 2D the coordinates of the new point
-			Point_2 newPoint2D = bestWindow.intersectLines(new Point_2(0,0), new Point_2(0,Window.edgeLength(oppositeEdge)), P_2D, bestWindow.getSourceInPlane());
+			Point_2 newPoint2D = ProjectUtils.intersectLines(new Point_2(0,0), new Point_2(0,Window.edgeLength(oppositeEdge)), P_2D, bestWindow.getSourceInPlane());
 			//And we deduce the new point in 3D
-			Point_3 newPoint = Window.barycenter(oppositeEdge.getVertex().getPoint(), oppositeEdge.getOpposite().getVertex().getPoint(), newPoint2D.x);
+			Point_3 newPoint = ProjectUtils.barycenter(oppositeEdge.getVertex().getPoint(), oppositeEdge.getOpposite().getVertex().getPoint(), newPoint2D.x);
 			
 			//We now have the new point to use recursion
 			LinkedList<Point_3> result = pathToSource(newPoint,oppositeEdge.getOpposite().getFace());
@@ -253,7 +253,7 @@ public class GeodesicDistance {
 		
 		for(Halfedge<Point_3> n : neighbouringEdges)
 		{
-			closeWindows.addAll(eg.computedWindows.get(n));
+			closeWindows.addAll(df.computedWindows.get(n));
 		}
 		
 		Double distance = -1.;
@@ -289,21 +289,21 @@ public class GeodesicDistance {
 				//we sum the angles (B0P,B0B1) and (B0S,B0B1). If the result is bigger than pi,
 				//then S is two far beyond B0 to be reached through the window in a straight line
 				minThroughWindow = Math.sqrt( (P_2D.x - w.b0)*(P_2D.x - w.b0) + P_2D.y*P_2D.y ) + Math.sqrt( (S.x - w.b0)*(S.x - w.b0) + S.y*S.y );
-				passagePoint = Window.barycenter(P0, P1, w.b0);
+				passagePoint = ProjectUtils.barycenter(P0, P1, w.b0);
 			}
 			else if(Math.acos(-(P_2D.x-w.b1)/Math.sqrt((P_2D.x-w.b1)*(P_2D.x-w.b1)+P_2D.y*P_2D.y)) + Math.acos(-(S.x-w.b1)/Math.sqrt((S.x-w.b1)*(S.x-w.b1)+S.y*S.y)) > Math.PI)
 			{
 				//we sum the angles (B1P,B0B1) and (B1S,B0B1). If the result is bigger than pi,
 				//then S is two far beyond B1 to be reached through the window in a straight line
 				minThroughWindow = Math.sqrt( (P_2D.x - w.b1)*(P_2D.x - w.b1) + P_2D.y*P_2D.y ) + Math.sqrt( (S.x - w.b1)*(S.x - w.b1) + S.y*S.y );
-				passagePoint = Window.barycenter(P0, P1, w.b1);
+				passagePoint = ProjectUtils.barycenter(P0, P1, w.b1);
 			}
 			else
 			{
 				//we can join P and S through the window
 				minThroughWindow = Math.sqrt( (S.x-P_2D.x)*(S.x-P_2D.x) + (S.y-P_2D.y)*(S.y-P_2D.y) );
-				Point_2 passagePoint2D = w.intersectLines(S, P_2D, new Point_2(0,w.b0), new Point_2(0,w.b1));
-				passagePoint = Window.barycenter(P0, P1, passagePoint2D.x);
+				Point_2 passagePoint2D = ProjectUtils.intersectLines(S, P_2D, new Point_2(0,w.b0), new Point_2(0,w.b1));
+				passagePoint = ProjectUtils.barycenter(P0, P1, passagePoint2D.x);
 			}
 			
 			//We add the distance from the pseudo-source to the source

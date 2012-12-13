@@ -14,20 +14,15 @@ import Jcg.polyhedron.Vertex;
 public class MeshViewer extends PApplet {
 	
 	HashMap<Vertex<Point_3>, Double> distanceMap ;
-
-	float xValue ;
-	float yValue ;
-	float zValue ;
-	
 	SurfaceMesh mesh;
-	ExactDijkstra dj;
-	ExactGeodesics eg;
+	Game meshGame ;
+	
 //	String filename="OFF/high_genus.off";
-//	String filename="OFF/sphere.off";
+	String filename="OFF/sphere.off";
 //	String filename="OFF/cube.off";
 //	String filename="OFF/torus_33.off";
 //	String filename="OFF/tore.off";
-	String filename="OFF/tri_round_cube.off";
+//	String filename="OFF/tri_round_cube.off";
 //	String filename="OFF/tri_hedra.off";
 //	String filename="OFF/tri_horse.off";
 //	String filename="OFF/tri_triceratops.off";
@@ -37,50 +32,21 @@ public class MeshViewer extends PApplet {
 	public void setup() {
 		size(800,600,P3D);
 		ArcBall arcball = new ArcBall(this);
-
-		xValue = 0 ;
-		yValue = 0 ;
-		zValue = 0 ;
-		
 		this.mesh=new SurfaceMesh(this, filename);
-		eg = new ExactGeodesics(this.mesh.polyhedron3D);
-		try {
-			//eg.compute();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		this.meshGame = new Game(this.mesh.polyhedron3D, this.mesh.polyhedron3D.facets.get(1));
 	}
 
 	public void draw() {
 		background(0);
-//		this.lights();
-//		directionalLight(101, 204, 255, -1, 0, 0);
-//		directionalLight(51, 102, 126, 0, -1, 0);
-//		directionalLight(51, 102, 126, 0, 0, -1);
-//		directionalLight(102, 50, 126, 1, 0, 0);
-//		directionalLight(51, 50, 102, 0, 1, 0);
-//		directionalLight(51, 50, 102, 0, 0, 1);
 
-		translate(width/2.f + xValue ,height/2.f + yValue,-1*height/2.f + zValue);
 		scale((float) 1.5) ;
 		this.strokeWeight((float) .3);
 		stroke(150,150,150);
-
-		//this.mesh.drawWithDistanceField(this.distanceMap);
-
-		//this.mesh.draw();
-		this.mesh.drawWindowsField(eg.computedWindows);
 	}
 	
 	public void keyPressed(){
 		try{
 		  switch(key) {
-		    case('s'):case('S'): this.eg.computeOnePropagation(); break;
-		    case('r'):case('R'):this.eg.compute(10); break;
-		    case('t'):case('T'):this.eg.compute(100); break;
-		    case('y'):case('Y'):this.eg.compute(1000); break;
-		    case('a'):case('A'):this.eg.compute(); break;
-
 
 		  }
 		} catch (Exception e) {

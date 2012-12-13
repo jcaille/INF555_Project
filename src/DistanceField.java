@@ -8,23 +8,75 @@ import com.sun.tools.apt.util.Bark;
 import Jcg.geometry.*;
 import Jcg.polyhedron.*;
 
-public class ExactGeodesics {
+public class DistanceField {
 	
 	public Polyhedron_3<Point_3> polyhedron3D;
-	public LinkedList<Segment_3> segments;
-	public LinkedList<Point_3> points ;
+
 	
 	public HashMap<Halfedge<Point_3>, LinkedList<Window>> computedWindows ;
 	public PriorityQueue<Window> windowsToPropagate ;
+	public Point_3 source ;
+	public Face<Point_3> sourceFace ;
 	
-	public ExactGeodesics(Polyhedron_3<Point_3> polyhedron3D) {
+	public DistanceField(Polyhedron_3<Point_3> polyhedron3D) {
 		this.polyhedron3D=polyhedron3D;
-		segments = new LinkedList<Segment_3>();
-		points = new LinkedList<Point_3>();
-		
 		computedWindows = new HashMap<Halfedge<Point_3>, LinkedList<Window>>() ;
 		windowsToPropagate = new PriorityQueue<Window>(this.polyhedron3D.sizeOfHalfedges(), new WindowComparator());
+		this.sourceFace = this.polyhedron3D.facets.get(500) ;
 		this.getFirstWindow();
+	}
+	
+	public DistanceField(Polyhedron_3<Point_3> polyhedron3D, Face<Point_3> sourceFace) {
+		this.polyhedron3D=polyhedron3D;
+		computedWindows = new HashMap<Halfedge<Point_3>, LinkedList<Window>>() ;
+		windowsToPropagate = new PriorityQueue<Window>(this.polyhedron3D.sizeOfHalfedges(), new WindowComparator());
+		this.sourceFace = sourceFace ;
+		this.getFirstWindow();
+	}
+	
+	public void getFirstWindow(){
+		Face<Point_3> f = this.sourceFace ;
+		Point_3 a = f.getEdge().getVertex().getPoint() ;
+		Point_3 b = f.getEdge().getOpposite().getVertex().getPoint() ;
+		Point_3 c = f.getEdge().getNext().getVertex().getPoint() ;
+		
+		Point_3 X = ProjectUtils.barycenter(b, a, 0.) ;
+		Point_3 Y = ProjectUtils.barycenter(b, a, 1.) ;
+				
+		Point_3 source = ProjectUtils.barycenter(ProjectUtils.barycenter(a, b, 0.5), c, 0.5) ;
+		this.source = source ;
+		
+		double b0 = (Double) b.distanceFrom(X) ; System.out.println(b0) ;
+		double b1 = (Double) b.distanceFrom(Y) ; System.out.println(b1) ;
+		double d0 = (Double) source.distanceFrom(X) ;
+		double d1 = (Double) source.distanceFrom(Y) ;
+		
+		Window myWindow = new Window(f.getEdge().getOpposite(), b0, b1, d0, d1, -1, 0);
+
+		LinkedList<Window> myWindows = new LinkedList<Window>() ;
+		myWindows.add(myWindow);
+		computedWindows.put(myWindow.edge, myWindows);
+		windowsToPropagate.add(myWindow);
+		
+		b0 = 0.0 ;
+		b1 = (Double) c.distanceFrom(b) ;
+		d0 = (Double) c.distanceFrom(source) ;
+		d1 = (Double) b.distanceFrom(source) ;
+		myWindow = new Window(f.getEdge().getPrev().opposite, b0, b1, d0, d1, -1, 0) ;
+		
+		myWindows.add(myWindow);
+		computedWindows.put(myWindow.edge, myWindows);
+		windowsToPropagate.add(myWindow);
+		
+		b0 = 0.0 ;
+		b1 = (Double) c.distanceFrom(a) ;
+		d0 = (Double) a.distanceFrom(source) ;
+		d1 = (Double) c.distanceFrom(source) ;
+		myWindow = new Window(f.getEdge().getNext().opposite, b0, b1, d0, d1, -1, 0) ;
+		
+		myWindows.add(myWindow);
+		computedWindows.put(myWindow.edge, myWindows);
+		windowsToPropagate.add(myWindow);
 	}
 	
 	public PairOfLists mergeTwoWindows(Window w1, Window w2) throws Exception{
@@ -255,50 +307,7 @@ public class ExactGeodesics {
 			if(!windowsOnFistEdge.isEmpty()){this.merge(windowsOnFistEdge);}
 			if(!lwindowsOnSecondEdge.isEmpty()){this.merge(lwindowsOnSecondEdge);}
 	}
-	
-	public void getFirstWindow(){
-		Face<Point_3> f = this.polyhedron3D.facets.get(300) ;
-		Point_3 a = f.getEdge().getVertex().getPoint() ;
-		Point_3 b = f.getEdge().getOpposite().getVertex().getPoint() ;
-		Point_3 c = f.getEdge().getNext().getVertex().getPoint() ;
-		
-		Point_3 X = ProjectUtils.barycenter(b, a, 0.) ;
-		Point_3 Y = ProjectUtils.barycenter(b, a, 1.) ;
-				
-		Point_3 source = ProjectUtils.barycenter(ProjectUtils.barycenter(a, b, 0.5), c, 0.5) ;
-		double b0 = (Double) b.distanceFrom(X) ; System.out.println(b0) ;
-		double b1 = (Double) b.distanceFrom(Y) ; System.out.println(b1) ;
-		double d0 = (Double) source.distanceFrom(X) ;
-		double d1 = (Double) source.distanceFrom(Y) ;
-		
-		Window myWindow = new Window(f.getEdge().getOpposite(), b0, b1, d0, d1, -1, 0);
 
-		LinkedList<Window> myWindows = new LinkedList<Window>() ;
-		myWindows.add(myWindow);
-		computedWindows.put(myWindow.edge, myWindows);
-		windowsToPropagate.add(myWindow);
-		
-		b0 = 0.0 ;
-		b1 = (Double) c.distanceFrom(b) ;
-		d0 = (Double) c.distanceFrom(source) ;
-		d1 = (Double) b.distanceFrom(source) ;
-		myWindow = new Window(f.getEdge().getPrev().opposite, b0, b1, d0, d1, -1, 0) ;
-		
-		myWindows.add(myWindow);
-		computedWindows.put(myWindow.edge, myWindows);
-		windowsToPropagate.add(myWindow);
-		
-		b0 = 0.0 ;
-		b1 = (Double) c.distanceFrom(a) ;
-		d0 = (Double) a.distanceFrom(source) ;
-		d1 = (Double) c.distanceFrom(source) ;
-		myWindow = new Window(f.getEdge().getNext().opposite, b0, b1, d0, d1, -1, 0) ;
-		
-		myWindows.add(myWindow);
-		computedWindows.put(myWindow.edge, myWindows);
-		windowsToPropagate.add(myWindow);
-	}
-	
 	public void compute(int iteration) throws Exception {
 		for(int i = 0 ; i < iteration ; i++){
 			computeOnePropagation();
