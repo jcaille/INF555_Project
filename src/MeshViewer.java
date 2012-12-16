@@ -25,10 +25,15 @@ public class MeshViewer extends PApplet {
 //		String filename="OFF/torus_33.off";
 //		String filename="OFF/tore.off";
 //		String filename="OFF/tri_round_cube.off";
-		String filename="OFF/tri_hedra.off";
+//		String filename="OFF/tri_hedra.off";
 //		String filename="OFF/tri_horse.off";
 //		String filename="OFF/tri_triceratops.off";
 //		String filename="OFF/tri_gargoyle.off";
+//		String filename="OFF/twisted.off";
+//		String filename="OFF/tri_ellipsoid.off";
+//		String filename="OFF/bague.off";
+//		String filename="OFF/tri_cow.off";
+		String filename="Off/house.off";
 
 
 	public void setup() {
@@ -36,9 +41,9 @@ public class MeshViewer extends PApplet {
 		ArcBall arcball = new ArcBall(this);
 		this.mesh=new SurfaceMesh(this, filename);
 		this.meshBis=new SurfaceMesh(this, filename);
-		this.meshGame = new Game(this.mesh.polyhedron3D,this.meshBis.polyhedron3D, this.mesh.polyhedron3D.facets.get(1));
+		this.meshGame = new Game(this.mesh.polyhedron3D,this.meshBis.polyhedron3D, this.mesh.polyhedron3D.facets.get(0));
 		
-		Face<Point_3> f = this.mesh.polyhedron3D.facets.get(3) ;
+		Face<Point_3> f = this.mesh.polyhedron3D.facets.get(0) ;
 		Halfedge<Point_3> e = f.getEdge() ;
 		
 		Point_3 a = e.getVertex().getPoint();

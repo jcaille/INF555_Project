@@ -34,8 +34,6 @@ public class SurfaceMesh {
 
 		//System.out.println(polyhedron3D.verticesToString());   	
 		//System.out.println(polyhedron3D.facesToString());
-		polyhedron3D.isValid(false);
-
 		this.scaleFactor=this.computeScaleFactor();
 	}
 

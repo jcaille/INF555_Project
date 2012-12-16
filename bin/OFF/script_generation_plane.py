@@ -24,7 +24,7 @@ for j in range(0,y) :
 		if i < x-1  and j > 0:
 			number_of_faces += 2 
 			graph_string += "3 " + str( i + j*x ) + " " + str(i+ (j-1)*x) + " " + str( i+1 + (j-1)*x) + "\n"
-			graph_string += "3 " + str( i + j*x ) + " " + str(i + 1 + j*x) + " " + str( i+1 + (j-1) * x) + "\n"
+			graph_string += "3 " + str( i + j*x ) + " " + str(i + 1 + (j-1)*x) + " " + str( i+1 + j * x) + "\n"
 
 opening_string += str(number_of_vertices) + " " + str(number_of_faces) + " 0\n"
 #Fill the strings up
