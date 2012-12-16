@@ -103,7 +103,6 @@ public class GeodesicDistance {
 		}
 		
 		if(pIsOnA || pIsOnB || pIsOnC){
-			System.out.println("P is on an edge");
 			Halfedge<Point_3> edge = null ;
 			if(pIsOnA){ edge = a; } 
 			if(pIsOnB){ edge = b; } 
@@ -113,8 +112,8 @@ public class GeodesicDistance {
 			if(df.computedWindows.containsKey(edge)){
 				for(Window w : df.computedWindows.get(edge)){
 					if(w.containsPoint(P)){
-						if(w.distanceOfPointToSource(P) < distance || distance < 0){
-							distance = w.distanceOfPointToSource(P);
+						if(w.distanceOfPointOnEdgeToSource(P) < distance || distance < 0){
+							distance = w.distanceOfPointOnEdgeToSource(P);
 						}
 					}
 				}
@@ -123,8 +122,8 @@ public class GeodesicDistance {
 			if(df.computedWindows.containsKey(edge.opposite)){
 				for(Window w : df.computedWindows.get(edge.opposite)){
 					if(w.containsPoint(P)){
-						if(w.distanceOfPointToSource(P) < distance || distance < 0){
-							distance = w.distanceOfPointToSource(P);
+						if(w.distanceOfPointOnEdgeToSource(P) < distance || distance < 0){
+							distance = w.distanceOfPointOnEdgeToSource(P);
 						}
 					}
 				}
@@ -137,95 +136,32 @@ public class GeodesicDistance {
 		//and we minimise the distance from the source through them
 		//If the point is on an edge, we will add the edges of the opposite face as well
 		
+		neighbouringEdges.add(a) ;
+		neighbouringEdges.add(b) ;
+		neighbouringEdges.add(c) ;
 		
-		LinkedList<Halfedge<Point_3>> newNeighbouringEdges = new LinkedList<Halfedge<Point_3>>();
-		for(Halfedge<Point_3> n : neighbouringEdges)
-		{
-			newNeighbouringEdges.push(n);
+		double distance = 1000000000.0 ;
+		for(Halfedge<Point_3> e : neighbouringEdges){
+			if(this.df.computedWindows.containsKey(e)){
+				for(Window w : this.df.computedWindows.get(e)){
+					double currentDistance = w.minDistanceThroughWindow(P) ;
+					if(currentDistance < distance && currentDistance >= 0){
+						distance = currentDistance ;
+					}
+				}
+			}
 			
-			Point_3 P0 = n.getVertex().getPoint(), P1 = n.getOpposite().getVertex().getPoint();
-			Point_3 P0P1 = new Point_3(P1.x-P0.x, P1.y-P0.y, P1.z-P0.z);
-			Point_3 P0P = new Point_3(P.x-P0.x, P.y-P0.y, P.z-P0.z);
-			Point_3 vecProduct = new Point_3(P0P.y*P0P1.z-P0P.z*P0P1.y, P0P.z*P0P1.x-P0P.x*P0P1.z, P0P.x*P0P1.y-P0P.y*P0P1.x);
-			
-			double distanceEdgeToP = Math.sqrt((vecProduct.x*vecProduct.x+vecProduct.y*vecProduct.y+vecProduct.z*vecProduct.z)/(P0P1.x*P0P1.x+P0P1.y*P0P1.y+P0P1.z*P0P1.z));
-			
-			if(ProjectUtils.equals(distanceEdgeToP,0))
-			{
-				Halfedge<Point_3> nOpposite = n.getOpposite(), nextEdge = nOpposite.getNext();
-				newNeighbouringEdges.push(nOpposite);
-				
-				while(nextEdge != nOpposite)
-				{
-					newNeighbouringEdges.push(nextEdge);
-					nextEdge = nextEdge.getNext();
+			if(this.df.computedWindows.containsKey(e.opposite)){
+				for(Window w : this.df.computedWindows.get(e.opposite)){
+					double currentDistance = w.minDistanceThroughWindow(P) ;
+					if(currentDistance < distance && currentDistance >= 0){
+						distance = currentDistance ;
+					}
 				}
 			}
 		}
-		neighbouringEdges = newNeighbouringEdges;
 		
-		//Then we determine all windows on these edges
-		
-		for(Halfedge<Point_3> n : neighbouringEdges)
-		{
-			if(df.computedWindows.containsKey(n)){
-				closeWindows.addAll(df.computedWindows.get(n));
-			}
-		}
-		
-		//And we compute the shortest distance to the source through them
-		
-		Double distance = -1.;
-		
-		for(Window w : closeWindows)
-		{
-			//We want to compute the shortest distance to the source through one of the windows
-			double minThroughWindow = 0;
-			
-			//We start by transforming P into a 2D point in the plane define by P and the edge
-			Point_3 P1 = w.edge.getOpposite().getVertex().getPoint();
-			Point_3 P0 = w.edge.getVertex().getPoint();
-			
-			Point_3 P0P1 = new Point_3(P1.x-P0.x, P1.y-P0.y, P1.z-P0.z);
-			double nP0P1 = Math.sqrt(P0P1.x*P0P1.x + P0P1.y*P0P1.y + P0P1.y*P0P1.y);
-			P0P1.x /= nP0P1;
-			P0P1.y /= nP0P1;
-			P0P1.z /= nP0P1;
-			
-			Point_2 P_2D = new Point_2();
-			
-			P_2D.x = (P.x-P0.x)*P0P1.x+(P.y-P0.y)*P0P1.y+(P.z-P0.z)*P0P1.z;
-			P_2D.y = Math.sqrt((P.x - P_2D.x*P0P1.x)*(P.x - P_2D.x*P0P1.x) + (P.y - P_2D.x*P0P1.y)*(P.y - P_2D.x*P0P1.y) + (P.z - P_2D.x*P0P1.z)*(P.z - P_2D.x*P0P1.z));
-			
-			//Now, can we joint P and the pseudo-source with a straight line?
-			Point_2 S = w.getSourceInPlane();
-			
-			if(Math.acos((P_2D.x-w.b0)/Math.sqrt((P_2D.x-w.b0)*(P_2D.x-w.b0)+P_2D.y*P_2D.y)) + Math.acos((S.x-w.b0)/Math.sqrt((S.x-w.b0)*(S.x-w.b0)+S.y*S.y)) > Math.PI)
-			{
-				//we sum the angles (B0P,B0B1) and (B0S,B0B1). If the result is bigger than pi,
-				//then S is two far beyond P0 to be reached through the window in a straight line
-				minThroughWindow = Math.sqrt( (P_2D.x - w.b0)*(P_2D.x - w.b0) + P_2D.y*P_2D.y ) + Math.sqrt( (S.x - w.b0)*(S.x - w.b0) + S.y*S.y );
-			}
-			else if(Math.acos(-(P_2D.x-w.b1)/Math.sqrt((P_2D.x-w.b1)*(P_2D.x-w.b1)+P_2D.y*P_2D.y)) + Math.acos(-(S.x-w.b1)/Math.sqrt((S.x-w.b1)*(S.x-w.b1)+S.y*S.y)) > Math.PI)
-			{
-				//we sum the angles (B1P,B0B1) and (B1S,B0B1). If the result is bigger than pi,
-				//then S is two far beyond P1 to be reached through the window in a straight line
-				minThroughWindow = Math.sqrt( (P_2D.x - w.b1)*(P_2D.x - w.b1) + P_2D.y*P_2D.y ) + Math.sqrt( (S.x - w.b1)*(S.x - w.b1) + S.y*S.y );
-			}
-			else
-			{
-				//we can join P and S through the window
-				minThroughWindow = Math.sqrt( (S.x-P_2D.x)*(S.x-P_2D.x) + (S.y-P_2D.y)*(S.y-P_2D.y) );
-			}
-			
-			//We add the distance from the pseudo-source to the source
-			minThroughWindow += w.sigma;
-			
-			if(distance < 0 || minThroughWindow < distance)
-				distance = minThroughWindow;
-		}
-
-		return(distance);
+		return distance ;
 	}
 
 	public LinkedList<Point_3> pathToSource(Point_3 P, Face<Point_3> f){

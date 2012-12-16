@@ -184,11 +184,12 @@ public class SurfaceMesh {
 			Point_3 r=e.getNext().getNext().vertex.getPoint();
 			
 			double meanDistance = (map.get(p) + map.get(q) + map.get(r)) / 3.0 ;
-			int scaledColor = (int) (255 * (1 - meanDistance / maxDistance));
-
-
+			
+			int remainder = (int) (255 * (Math.cos(meanDistance * 34 / maxDistance) - 1) /2 );
+			int mainDistance = (int) (255 * meanDistance / maxDistance) ;
+			
 			view.noStroke();
-			view.fill(255-scaledColor, 255-scaledColor,scaledColor,255); // color of the triangle
+			view.fill((9*mainDistance + remainder)/10 , 0, 255-mainDistance); // color of the triangle
 			this.drawTriangle(p, q, r); // draw a triangle face
 		}
 		view.endShape();

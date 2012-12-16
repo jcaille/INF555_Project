@@ -35,47 +35,21 @@ public class DistanceField {
 	
 	public void getFirstWindow(){
 		Face<Point_3> f = this.sourceFace ;
-		Point_3 a = f.getEdge().getVertex().getPoint() ;
-		Point_3 b = f.getEdge().getOpposite().getVertex().getPoint() ;
-		Point_3 c = f.getEdge().getNext().getVertex().getPoint() ;
-		
-		Point_3 X = ProjectUtils.barycenter(b, a, 0.) ;
-		Point_3 Y = ProjectUtils.barycenter(b, a, 1.) ;
-				
-		Point_3 source = ProjectUtils.barycenter(ProjectUtils.barycenter(a, b, 0.5), c, 0.5) ;
-		this.source = source ;
-		
-		double b0 = (Double) b.distanceFrom(X) ;
-		double b1 = (Double) b.distanceFrom(Y) ;
-		double d0 = (Double) source.distanceFrom(X) ;
-		double d1 = (Double) source.distanceFrom(Y) ;
-		
-		Window myWindow = new Window(f.getEdge().getOpposite(), b0, b1, d0, d1, -1, 0);
-
-		LinkedList<Window> myWindows = new LinkedList<Window>() ;
-		myWindows.add(myWindow);
-		computedWindows.put(myWindow.edge, myWindows);
-		windowsToPropagate.add(myWindow);
-		
-		b0 = 0.0 ;
-		b1 = (Double) c.distanceFrom(b) ;
-		d0 = (Double) c.distanceFrom(source) ;
-		d1 = (Double) b.distanceFrom(source) ;
-		myWindow = new Window(f.getEdge().getPrev().opposite, b0, b1, d0, d1, -1, 0) ;
-		
-		myWindows.add(myWindow);
-		computedWindows.put(myWindow.edge, myWindows);
-		windowsToPropagate.add(myWindow);
-		
-		b0 = 0.0 ;
-		b1 = (Double) c.distanceFrom(a) ;
-		d0 = (Double) a.distanceFrom(source) ;
-		d1 = (Double) c.distanceFrom(source) ;
-		myWindow = new Window(f.getEdge().getNext().opposite, b0, b1, d0, d1, -1, 0) ;
-		
-		myWindows.add(myWindow);
-		computedWindows.put(myWindow.edge, myWindows);
-		windowsToPropagate.add(myWindow);
+		Point_3 source = f.getEdge().getVertex().getPoint() ;
+		Halfedge<Point_3> e = f.getEdge() ;
+		do{
+			double b0 = 0 ;
+			double b1 = (Double) source.distanceFrom(e.opposite.getVertex().getPoint());
+			double d0 = 0 ;
+			double d1 = b1 ;
+			Window myWindow = new Window(e, b0, b1, d0, d1, 1, 0);
+			LinkedList<Window> l = new LinkedList<Window>();
+			l.add(myWindow);
+			this.computedWindows.put(e, l);
+			this.windowsToPropagate.add(myWindow);
+			
+			e = e.next.opposite ;
+		} while (e != f.getEdge());
 	}
 	
 	public PairOfLists mergeTwoWindows(Window w1, Window w2) throws Exception{

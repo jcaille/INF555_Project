@@ -133,9 +133,43 @@ public class Window {
 		return (b0 <= dp && dp <= b1) ;
 	}
 	
-	public double distanceOfPointToSource(Point_3 P){
+	public double distanceOfPointOnEdgeToSource(Point_3 P){
 		double dp = (Double) P.distanceFrom(this.edge.vertex.getPoint());
 		return distanceOnEdge(dp);
+	}
+	
+	public double minDistanceThroughWindow(Point_3 P){
+		Point_2 S = this.getSourceInPlane() ;
+		Point_3 A = this.edge.getVertex().getPoint() ;
+		Point_3 B = this.edge.opposite.getVertex().getPoint() ;
+		
+		double pa = (Double) A.distanceFrom(P) ;
+		double pb = (Double) B.distanceFrom(P) ;
+		double edgeLength = (Double) A.distanceFrom(B) ;
+		
+		Point_2 Q = ProjectUtils.getThirdTriangleVertex(0, edgeLength, pa, pb, -this.tau) ;
+		
+		double x0 = (Q.y * S.x - Q.x * S.y) / (Q.y - S.y) ;
+		double x1 = (Q.y * S.x + Q.x * S.y) / (Q.y + S.y) ;
+		Point_2 X0 = new Point_2(x0, 0) ;
+		Point_2 X1 = new Point_2(x1, 0) ;
+		
+		double d0 = (Double) S.distanceFrom(X0) + (Double) X0.distanceFrom(Q) + sigma;
+		double d1 = (Double) S.distanceFrom(X1) + (Double) X1.distanceFrom(Q) + sigma;
+		
+		if( b0 <= x0 && x0 <= b1){
+			if(b0 <= x1 && x1 <- b1){
+				return d0 < d1 ? d0 : d1 ;
+			} else {
+				return d0 ;
+			}
+		} else {
+			if(b0 <= x1 && x1 <- b1){
+				return d1 ;
+			} else {
+				return -1 ;
+			}
+		}
 	}
 	
 	public Segment_3 getSegment(){

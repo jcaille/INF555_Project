@@ -25,10 +25,10 @@ public class MeshViewer extends PApplet {
 //		String filename="OFF/torus_33.off";
 //		String filename="OFF/tore.off";
 //		String filename="OFF/tri_round_cube.off";
-//		String filename="OFF/tri_hedra.off";
+		String filename="OFF/tri_hedra.off";
 //		String filename="OFF/tri_horse.off";
 //		String filename="OFF/tri_triceratops.off";
-		String filename="OFF/tri_gargoyle.off";
+//		String filename="OFF/tri_gargoyle.off";
 
 
 	public void setup() {
@@ -43,11 +43,12 @@ public class MeshViewer extends PApplet {
 		
 		Point_3 a = e.getVertex().getPoint();
 		Point_3 b = e.getOpposite().getVertex().getPoint() ;
-		Point_3 c = ProjectUtils.barycenter(a, b, 0.00001);
+		Point_3 c = e.getNext().getVertex().getPoint() ;
+		Point_3 d = ProjectUtils.barycenter(ProjectUtils.barycenter(a, b, 0.5), c, 0.5);
+		Point_3 d1 = ProjectUtils.barycenter(a, b, 0.5);
 		
-		System.out.println(this.meshGame.geodesicDistance.distanceToSource(a, f));
-		System.out.println(this.meshGame.geodesicDistance.distanceToSource(b, f));
-		System.out.println(this.meshGame.geodesicDistance.distanceToSource(c, f));
+		System.out.println(this.meshGame.geodesicDistance.distanceToSource(d, f));
+		System.out.println(this.meshGame.geodesicDistance.distanceToSource(d1, f));
 	}
 
 	public void draw() {
@@ -61,7 +62,7 @@ public class MeshViewer extends PApplet {
 	public void keyPressed(){
 		try{
 			switch(key) {
-			case('s') : case('S') : this.meshGame.subdivide() ; break ;
+			case('s') : case('S') : this.meshGame.subdivide() ; this.meshGame.subdividedPolyhedron.isValid(false) ; break ;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
