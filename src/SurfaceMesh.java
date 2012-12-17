@@ -181,7 +181,40 @@ public class SurfaceMesh {
 			Point_3 q=e.getNext().vertex.getPoint();
 			Point_3 r=e.getNext().getNext().vertex.getPoint();
 			
-			double meanDistance = (map.get(p) + map.get(q) + map.get(r)) / 3.0 ;
+			double meanDistance = 0;
+			int counter = 0;
+			
+			double d1,d2,d3;
+			d1 = map.get(p);
+			d2 = map.get(q);
+			d3 = map.get(r);
+			
+			if(d1 >= 0)
+			{
+				meanDistance += d1;
+				counter++;
+			}
+			
+			if(d2 >= 0)
+			{
+				meanDistance += d2;
+				counter++;
+			}
+			
+			if(d3 >= 0)
+			{
+				meanDistance += d3;
+				counter++;
+			}
+			
+			if(counter == 0)
+			{
+				meanDistance = maxDistance;
+			}
+			else
+			{
+				meanDistance /= counter;
+			}
 			
 			int remainder = (int) (255 * (Math.cos(meanDistance * 34 / maxDistance) - 1) /2 );
 			int mainDistance = (int) (255 * meanDistance / maxDistance) ;
