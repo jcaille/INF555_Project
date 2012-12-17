@@ -22,7 +22,7 @@ public class MeshViewer extends PApplet {
 //		String filename="OFF/high_genus.off";
 //		String filename="OFF/sphere.off";
 //		String filename="OFF/cube.off";
-//		String filename="OFF/torus_33.off";
+		String filename="OFF/torus_33.off";
 //		String filename="OFF/tore.off";
 //		String filename="OFF/tri_round_cube.off";
 //		String filename="OFF/tri_hedra.off";
@@ -33,7 +33,7 @@ public class MeshViewer extends PApplet {
 //		String filename="OFF/tri_ellipsoid.off";
 //		String filename="OFF/bague.off";
 //		String filename="OFF/tri_cow.off";
-		String filename="Off/house.off";
+//		String filename="Off/delaunay100.off";
 
 
 	public void setup() {
