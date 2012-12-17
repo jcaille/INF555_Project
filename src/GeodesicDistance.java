@@ -29,14 +29,6 @@ public class GeodesicDistance {
 		
 		segments = new LinkedList<Segment_3>();
 		
-		for(Halfedge<Point_3> h:this.polyhedron3D.halfedges)
-		{
-			if(!df.computedWindows.containsKey(h))
-			{
-				segments.add(new Segment_3(h.getVertex().getPoint(), h.getOpposite().getVertex().getPoint()));
-			}
-		}
-		
 		this.source = df.source;
 		this.sourceFace = sourceFace;
 	}

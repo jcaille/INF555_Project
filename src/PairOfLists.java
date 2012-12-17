@@ -4,16 +4,16 @@ import java.util.LinkedList;
 public class PairOfLists {
 	
 	LinkedList<Window> first;
-	LinkedList<Window> secund;
+	LinkedList<Window> second;
 
 	public PairOfLists() {
 		this.first = new LinkedList<Window>();
-		this.secund = new LinkedList<Window>();
+		this.second = new LinkedList<Window>();
 	}
 	
 	public PairOfLists(LinkedList<Window> first, LinkedList<Window> secund) {
 		this.first = new LinkedList<Window>();
-		this.secund = new LinkedList<Window>();
+		this.second = new LinkedList<Window>();
 		
 		for(Window w:first)
 		{
@@ -23,11 +23,11 @@ public class PairOfLists {
 			}
 		}
 		
-		for(Window w:secund)
+		for(Window w:second)
 		{
 			if(!w.isEmpty())
 			{
-				this.secund.push(w);
+				this.second.push(w);
 			}
 		}
 	}

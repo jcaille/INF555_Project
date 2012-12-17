@@ -39,7 +39,7 @@ public class DistanceField {
 		Halfedge<Point_3> e = f.getEdge() ;
 		do{
 			double b0 = 0 ;
-			double b1 = (Double) source.distanceFrom(e.opposite.getVertex().getPoint());
+			double b1 = (Double) source.distanceFrom(e.getOpposite().getVertex().getPoint());
 			double d0 = 0 ;
 			double d1 = b1 ;
 			Window myWindow = new Window(e, b0, b1, d0, d1, 1, 0);
@@ -234,7 +234,7 @@ public class DistanceField {
 						//If necessary, we create new lists for old and new windows
 						PairOfLists pair = mergeTwoWindows(w, newWindow);
 						newResultingOldWindows.addAll(pair.first);
-						newWindowsToMerge.addAll(pair.secund);
+						newWindowsToMerge.addAll(pair.second);
 					} else {
 						//Or we can just keep the windows as is if they are compatible
 						newResultingOldWindows.add(w);
@@ -285,6 +285,62 @@ public class DistanceField {
 		for(int i = 0 ; i < iteration ; i++){
 			computeOnePropagation();
 		}
+		
+		//There's a possibility that the windows on an edge don't totally cover that edge
+		//We want to correct that
+		PriorityQueue<Window> tempQueue = new PriorityQueue<Window>(10, new WindowComparator2());
+		for(Halfedge<Point_3> h : this.polyhedron3D.halfedges)
+		{
+			tempQueue.clear();
+			
+			if(!computedWindows.containsKey(h))
+			{
+				continue;
+			}
+			
+			for(Window w : computedWindows.get(h))
+			{
+				tempQueue.add(w);
+			}
+			
+			Window first,second = tempQueue.poll();
+			
+			if(second.b0 != 0)
+			{
+				Point_2 S = second.getSourceInPlane();
+				second.d0 = Math.sqrt(S.x*S.x + S.y*S.y);
+				second.b0 = 0;
+			}
+			
+			while(tempQueue.isEmpty())
+			{
+				first = second;
+				second = tempQueue.poll();
+				
+				if(first.b1 != second.b0)
+				{
+					double bMiddle = (first.b1+second.b0)/2;
+					
+					Point_2 S = first.getSourceInPlane();
+					first.d1 = Math.sqrt((S.x-bMiddle)*(S.x-bMiddle) + S.y*S.y);
+					first.b1 = bMiddle;
+					
+					S = second.getSourceInPlane();
+					second.d0 = Math.sqrt((S.x-bMiddle)*(S.x-bMiddle) + S.y*S.y);
+					second.b0 = bMiddle;
+				}
+			}
+			
+			double bLast = Window.edgeLength(second.edge);
+			
+			if(second.b1 != bLast)
+			{
+				Point_2 S = second.getSourceInPlane();
+				second.d1 = Math.sqrt((S.x-bLast)*(S.x-bLast) + S.y*S.y);
+				second.b1 = bLast;
+			}
+		}
+		
 	}
 	
 	public void compute() throws Exception {
