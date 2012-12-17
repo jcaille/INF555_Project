@@ -22,7 +22,10 @@ public class GeodesicDistance {
 		this.polyhedron3D=polyhedron3D;
 		df = new DistanceField(polyhedron3D, sourceFace);
 		try {
+			long startingTime = System.currentTimeMillis(),endingTime;
 			df.compute();
+			endingTime = System.currentTimeMillis();
+			System.out.println("Durée du calcul du champ de distance: "+(endingTime-startingTime)+"ms");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
