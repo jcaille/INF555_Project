@@ -223,6 +223,7 @@ public class SurfaceMesh {
 			view.fill((9*mainDistance + remainder)/10 , 0, 255-mainDistance); // color of the triangle
 			this.drawTriangle(p, q, r); // draw a triangle face
 		}
+
 		view.endShape();
 
 		view.strokeWeight(1);

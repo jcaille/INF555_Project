@@ -19,12 +19,12 @@ public class MeshViewer extends PApplet {
 	SurfaceMesh mesh, meshBis;
 	Game meshGame ;
 
-		String filename="OFF/high_genus.off";
+//		String filename="OFF/high_genus.off";
 //		String filename="OFF/sphere.off";
 //		String filename="OFF/cube.off";
 //		String filename="OFF/torus_33.off";
 //		String filename="OFF/tore.off";
-//		String filename="OFF/tri_round_cube.off";
+		String filename="OFF/tri_round_cube.off";
 //		String filename="OFF/tri_hedra.off";
 //		String filename="OFF/tri_horse.off";
 //		String filename="OFF/tri_triceratops.off";
@@ -59,7 +59,7 @@ public class MeshViewer extends PApplet {
 	public void draw() {
 		background(0);
 		translate(width/2.f  ,height/2.f ,-1*height/2.f);
-		scale((float) 1.5) ;
+		scale((float) 2.5) ;
 		this.mesh.drawPolyhedronWithDistanceField(this.meshGame.subdividedPolyhedron, this.meshGame.computedDistanceField);
 		this.mesh.drawSegments(this.meshGame.geodesicDistance.segments);
 	}
